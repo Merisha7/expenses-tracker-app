@@ -1,0 +1,2 @@
+-- Expense Tracker Database
+-- Tables will be created by Developer 1
