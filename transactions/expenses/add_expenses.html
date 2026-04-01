@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Expense</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/transactions.css">
+</head>
+<body>
+
+<div class="main">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+
+        <div class="logo">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M3 7h18v13H3zM16 3H5a2 2 0 00-2 2v2h18V5a2 2 0 00-2-2z"/>
+            </svg>
+            FinTrack
+        </div>
+
+        <a href="../../dashboard/dashboard.html">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>
+            </svg>
+            Dashboard
+        </a>
+
+        <a href="../income/add_income.html">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M12 5v14M5 12h14"/>
+            </svg>
+            Add Income
+        </a>
+
+        <a href="add_expenses.html" class="active">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M5 12h14"/>
+            </svg>
+            Add Expenses
+        </a>
+
+        <a href="#" class="logout">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M15 12H3m6-6l-6 6 6 6M21 3v18"/>
+            </svg>
+            Log Out
+        </a>
+
+    </div>
+
+    <div class="content">
+        <h1>ADD EXPENSES</h1>
+        <p class="subtitle">Record a new expense entry</p>
+
+        <div class="card">
+            <?php if ($message != "") { ?>
+                <p class="message"><?php echo htmlspecialchars($message); ?></p>
+            <?php } ?>
+
+            <!-- Expense input form -->
+            <form method="POST">
+                <label>Expense Amount:</label>
+                <input type="text" name="amount" required>
+
+                <label>Date:</label>
+                <input type="date" name="date" required>
+
+                <label>Description:</label>
+                <textarea name="description"></textarea>
+
+                <button class="btn-expense">ADD EXPENSE</button>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,172 @@
+body {
+    margin: 0; 
+    font-family: 'Segoe UI', sans-serif; 
+    background-color: #f7f6fb; 
+}
+
+.main {
+    display: flex; 
+}
+
+.sidebar {
+    width: 240px; 
+    height: 100vh; 
+    background-color: #f1eef8; 
+    padding: 25px; 
+    position: fixed; 
+    display: flex;
+    flex-direction: column; 
+    box-sizing: border-box; 
+}
+
+
+.logo {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center; 
+    gap: 12px; 
+    padding: 12px; 
+    margin-bottom: 10px; 
+    text-decoration: none; 
+    color: #555; 
+    border-radius: 10px; 
+    transition: background 0.3s, color 0.3s; 
+}
+
+.sidebar a.active {
+    background: linear-gradient(to right, #7b5ce6, #9b7df5);
+    color: white;
+}
+
+.logout {
+    margin-top: auto; 
+    margin-bottom: 10px; 
+    color: red;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2; 
+}
+
+.content {
+    margin-left: 260px; 
+    padding: 40px; 
+}
+
+
+.subtitle {
+    color: gray;
+}
+
+.card {
+    background-color: #f1eef8; 
+    padding: 40px;
+    width: 700px; 
+    border-radius: 15px;
+}
+
+input, textarea {
+    width: 100%; 
+    padding: 14px; 
+    margin: 10px 0; 
+    border: none;
+    border-radius: 10px; 
+    background-color: #e9e4f5; 
+    box-sizing: border-box; 
+}
+
+/* Buttons */
+.btn-income,
+.btn-expense {
+    padding: 14px 30px; 
+    border: none; 
+    border-radius: 10px;
+    width: 250px; 
+    display: block; 
+    margin: 15px auto; 
+    cursor: pointer; 
+}
+
+.btn-income {
+    background: green; 
+    color: white; 
+}
+
+.btn-expense {
+    background: rgb(229, 110, 110); 
+    color: white; 
+}
+
+
+.message {
+    color: green;
+}
+
+/*Responsive UI*/
+
+@media (max-width: 768px) {
+
+    .main {
+        flex-direction: column; 
+        min-height: 100vh; /* ensure full screen height for centering */
+    }
+
+    .sidebar {
+        width: 100%; 
+        height: auto; 
+        position: relative; 
+        flex-direction: row; /* horizontal link layout */
+        flex-wrap: wrap; /* allow links to wrap */
+        justify-content: center; /* center links horizontally */
+        padding: 15px; 
+    }
+
+    .sidebar a {
+        flex: 1 1 48%; 
+        margin: 5px; 
+        text-align: center; 
+    }
+
+    .logo {
+        flex: 1 1 100%; 
+        justify-content: center; 
+        margin-bottom: 15px; 
+    }
+
+    .content {
+        margin-left: 0; 
+        padding: 20px; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center;     
+        min-height: calc(100vh - 60px); 
+        text-align: center; 
+    }
+
+    .card {
+        width: 100%; 
+        max-width: 400px; 
+        padding: 20px; 
+    }
+
+    input, textarea {
+        width: 100%; 
+    }
+
+    .btn-income,
+    .btn-expense {
+        width: 100%; 
+    }
+}
+
