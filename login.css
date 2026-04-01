@@ -1,0 +1,333 @@
+/* Import nice fonts from Google */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@600&display=swap');
+
+/* Reset: remove default browser spacing from everything */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Color shortcuts — change one and it updates everywhere */
+:root {
+  --purple-deep:     #5b3fa6;
+  --purple-mid:      #7c5cbf;
+  --purple-soft:     #a78fd4;
+  --purple-pale:     #e8dff7;
+  --purple-lightest: #f3eefb;
+  --white:           #ffffff;
+  --gray-100:        #f7f8fc;
+  --gray-200:        #eeeff5;
+  --gray-400:        #b0b3c6;
+  --gray-600:        #6b6e87;
+  --gray-800:        #2e2f3e;
+  --red-soft:        #e05a5a;
+  --green-soft:      #4caf7d;
+  --shadow-card:     0 8px 40px rgba(91, 63, 166, 0.13);
+  --shadow-btn:      0 4px 18px rgba(91, 63, 166, 0.35);
+  --transition:      0.22s cubic-bezier(.4,0,.2,1);
+}
+
+/* PAGE — center card on screen with light gray background */
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--gray-100);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Blurry purple circles decorating the background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 10%, rgba(167,143,212,0.22) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 85% 80%, rgba(91,63,166,0.13) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 60% 30%, rgba(232,223,247,0.35) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  width: 340px; height: 340px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,92,191,0.09) 0%, transparent 70%);
+  top: -80px; right: -80px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── WHITE CARD ──────────────────────────────────────── */
+.card {
+  position: relative; z-index: 1;
+  background: var(--white);
+  border-radius: 22px;
+  box-shadow: var(--shadow-card);
+  padding: 44px 40px 36px;
+  width: 100%; max-width: 400px;
+  /* Slide up + fade in when page loads */
+  animation: slideUp 0.5s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* ── LOGO ────────────────────────────────────────────── */
+.logo-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 10px;
+  margin-bottom: 28px;
+}
+
+.logo-icon {
+  width: 62px; height: 62px; border-radius: 18px;
+  background: linear-gradient(135deg, var(--purple-mid), var(--purple-deep));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 22px rgba(91,63,166,0.28);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.logo-icon:hover {
+  transform: translateY(-3px) rotate(-4deg);
+  box-shadow: 0 10px 30px rgba(91,63,166,0.38);
+}
+
+.logo-icon svg {
+  width: 30px; height: 30px;
+  fill: none; stroke: #fff;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.logo-label { font-size: 13.5px; font-weight: 500; color: var(--gray-600); }
+
+/* ── PAGE TITLE ──────────────────────────────────────── */
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px; font-weight: 600;
+  color: var(--gray-800); text-align: center;
+  margin-bottom: 8px;
+}
+
+/* Small description under the title (used on verify/forgot/reset pages) */
+.sub-text {
+  font-size: 13.5px; color: var(--gray-600);
+  text-align: center; margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* ── INPUT FIELDS ────────────────────────────────────── */
+.form-group {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+/* Small icon on the left side inside the input */
+.form-icon {
+  position: absolute;
+  left: 14px; top: 50%; transform: translateY(-50%);
+  width: 17px; height: 17px;
+  stroke: var(--gray-400); fill: none;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  pointer-events: none;
+  transition: stroke var(--transition);
+}
+
+/* Icon turns purple when the input is focused */
+.form-group:focus-within .form-icon { stroke: var(--purple-mid); }
+
+.form-input {
+  width: 100%;
+  padding: 14px 42px;       /* space for icons on both sides */
+  border: 1.5px solid var(--gray-200);
+  border-radius: 12px;
+  background: var(--gray-100);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14.5px; color: var(--gray-800);
+  outline: none;
+  transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+}
+
+.form-input::placeholder { color: var(--gray-400); }
+
+/* Input glows purple when clicked */
+.form-input:focus {
+  border-color: var(--purple-soft);
+  background: var(--white);
+  box-shadow: 0 0 0 3.5px rgba(167,143,212,0.18);
+}
+
+/* Special style for the 6-digit code input — bigger centered text */
+.code-input {
+  letter-spacing: 0.3em;
+  font-size: 18px; font-weight: 700;
+  text-align: center;
+}
+
+/* Eye button — sits on the right side of the password input */
+.toggle-pw {
+  position: absolute;
+  right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; padding: 0;
+  display: flex; align-items: center;
+}
+
+.toggle-pw svg {
+  width: 17px; height: 17px;
+  stroke: var(--gray-400); fill: none;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  transition: stroke var(--transition);
+}
+
+.toggle-pw:hover svg { stroke: var(--purple-mid); }
+
+/* ── FORGOT PASSWORD LINK ─────────────────────────────── */
+.forgot-link {
+  display: block; text-align: right;
+  font-size: 12.5px; color: var(--purple-mid);
+  text-decoration: none; font-style: italic; font-weight: 500;
+  margin: -4px 0 20px;
+  transition: color var(--transition);
+}
+
+.forgot-link:hover { color: var(--purple-deep); }
+
+/* ── BUTTONS ─────────────────────────────────────────── */
+.btn-primary {
+  width: 100%; padding: 15px;
+  border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--purple-mid), var(--purple-deep));
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 700; letter-spacing: 0.08em;
+  cursor: pointer; box-shadow: var(--shadow-btn);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(91,63,166,0.42); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  width: 100%; padding: 14px;
+  border: 1.5px solid var(--purple-soft); border-radius: 12px;
+  background: transparent; color: var(--purple-deep);
+  font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: background var(--transition);
+}
+
+.btn-secondary:hover { background: var(--purple-pale); }
+
+/* ── REGISTER LINK ───────────────────────────────────── */
+.register-link { text-align: center; font-size: 13px; color: var(--gray-600); margin-top: 22px; }
+.register-link a { color: var(--purple-deep); font-weight: 700; text-decoration: none; }
+.register-link a:hover { color: var(--purple-mid); }
+
+/* ── ALERT BOXES (error = red, success = green) ──────── */
+.alert {
+  border-radius: 10px; padding: 11px 14px;
+  font-size: 13.5px; font-weight: 500;
+  margin-bottom: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.alert-error   { background: #fef2f2; color: var(--red-soft);   border: 1px solid #fecaca; }
+.alert-success { background: #f0faf5; color: var(--green-soft); border: 1px solid #a7f3d0; }
+
+/* ── CODE HINT BOX (shows demo code on screen) ───────── */
+.code-hint {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13.5px; color: #92400e;
+  margin-bottom: 16px;
+  text-align: center; line-height: 1.7;
+}
+
+/* ── DEMO CREDENTIALS BOX ────────────────────────────── */
+.demo-box {
+  background: var(--purple-lightest);
+  border-radius: 10px; padding: 11px 14px;
+  font-size: 12.5px; color: var(--gray-600);
+  text-align: center; line-height: 1.7;
+}
+
+/* ── THIN DIVIDER LINE WITH LABEL ────────────────────── */
+.divider {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--gray-400); font-size: 12px;
+  margin: 18px 0;
+}
+
+.divider::before, .divider::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--gray-200);
+}
+
+/* ── SPINNER (spinning circle on login button) ───────── */
+.spinner {
+  display: none;          /* JS shows this when form is submitted */
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.35);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle; margin-right: 8px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── DASHBOARD CARD ──────────────────────────────────── */
+.dashboard-card {
+  background: var(--white); border-radius: 22px;
+  box-shadow: var(--shadow-card); padding: 40px;
+  width: 100%; max-width: 480px;
+  animation: slideUp 0.5s cubic-bezier(.22,1,.36,1) both;
+  position: relative; z-index: 1;
+}
+
+/* Top row: avatar + name + email */
+.welcome-header {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 28px; padding-bottom: 22px;
+  border-bottom: 1.5px solid var(--gray-200);
+}
+
+/* Circle with first letter of name */
+.avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-mid), var(--purple-deep));
+  display: flex; align-items: center; justify-content: center;
+  color: var(--white); font-size: 20px; font-weight: 700;
+  font-family: 'Playfair Display', serif; flex-shrink: 0;
+}
+
+.welcome-text h2 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gray-800); margin-bottom: 2px; }
+.welcome-text p  { font-size: 13px; color: var(--gray-600); }
+
+/* 2-column grid for the 4 stat boxes */
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+
+.stat-card { background: var(--purple-lightest); border-radius: 14px; padding: 16px; border: 1px solid var(--purple-pale); }
+.stat-card .label { font-size: 11.5px; font-weight: 600; color: var(--purple-soft); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 4px; }
+.stat-card .value { font-size: 22px; font-weight: 700; color: var(--purple-deep); font-family: 'Playfair Display', serif; }
+
+/* Session info box */
+.session-info { background: var(--gray-100); border-radius: 12px; padding: 14px 16px; font-size: 13px; color: var(--gray-600); margin-bottom: 22px; }
+.session-info span { color: var(--gray-800); font-weight: 600; }
+
+/* ── MOBILE — shrink padding on small screens ─────────── */
+@media (max-width: 440px) {
+  .card, .dashboard-card { padding: 32px 22px 26px; margin: 16px; }
+  .stat-grid { grid-template-columns: 1fr; }
+}
