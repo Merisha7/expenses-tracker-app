@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Expense Tracking</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="dashboard.js" defer></script>
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-box">
+                <span class="brand-icon" aria-hidden="true">
+                    <svg class="brand-icon-svg" viewBox="0 0 24 24" fill="none">
+                        <rect x="3.5" y="6.5" width="17" height="12" rx="1.8" stroke="currentColor" stroke-width="1.9"></rect>
+                        <path d="M3.5 10.2H20.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path>
+                    </svg>
+                </span>
+                <strong>FinTrack</strong>
+            </div>
+
+            <nav class="menu">
+                <a class="menu-item active" href="dashboard.html">Dashboard</a>
+                <a class="menu-item" href="#">Add Income</a>
+                <a class="menu-item" href="#">Add Expenses</a>
+            </nav>
+
+            <a class="logout-link" href="#">Log Out</a>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h1 id="helloTitle">HELLO, USER!</h1>
+                    <p>Here is your financial overview</p>
+                </div>
+                <div id="userAvatar" class="avatar">U</div>
+            </header>
+
+            <section class="cards-container">
+                <article class="stat-card balance-card">
+                    <div class="card-title">
+                        <span class="card-icon">👝</span>
+                        <h3>Total Balance</h3>
+                    </div>
+                    <p id="totalBalance">$0.00</p>
+                </article>
+                <article class="stat-card income-card">
+                    <div class="card-title">
+                        <span class="card-icon">📈</span>
+                        <h3>Monthly Income</h3>
+                    </div>
+                    <p id="monthlyIncome">$0.00</p>
+                </article>
+                <article class="stat-card expense-card">
+                    <div class="card-title">
+                        <span class="card-icon">📉</span>
+                        <h3>Monthly Expenses</h3>
+                    </div>
+                    <p id="monthlyExpenses">$0.00</p>
+                </article>
+            </section>
+
+            <section class="summary-section">
+                <article class="panel summary-panel">
+                    <h3>Budget Summary</h3>
+                    <p class="panel-text">Track your financial activity and manage your budget effectively. Monitor your monthly income, expenses and overall balance.</p>
+
+                    <h4>Recent Activity</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityBody"></tbody>
+                    </table>
+                </article>
+
+                <article class="panel chart-panel">
+                    <h3>Expenses &amp; Income Overview</h3>
+                    <div class="chart-wrap">
+                        <canvas id="overviewChart"></canvas>
+                    </div>
+                </article>
+            </section>
+        </main>
+    </div>
+</body>
+</html>
