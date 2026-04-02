@@ -30,7 +30,7 @@ function renderActivity(rows) {
     // Icon mapping for common descriptions
     const iconMap = {
         'salary': '💰',
-        'income': '💰',
+        'income': '💰zx',
         'freelance': '💼',
         'rent': '🏠',
         'groceries': '🛒',
