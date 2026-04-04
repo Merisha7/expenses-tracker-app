@@ -1,0 +1,3 @@
+<?php
+// Main entry page
+?>
