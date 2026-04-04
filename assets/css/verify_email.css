@@ -1,0 +1,108 @@
+/* Back arrow link at the top left of the card */
+.back-link {
+    display: inline-flex;     /* puts the arrow icon and any text side by side */
+    align-items: center;      /* vertically centers the icon */
+    color: #7c5cbf;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.back-link:hover {
+    opacity: 0.75;            /* slightly fades out when hovered */
+}
+
+/* "VERIFY EMAIL" heading */
+.verify-title {
+    text-align: center;
+    color: #2d2060;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+}
+
+/* Wrapper that centres the mail icon box horizontally */
+.mail-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* The purple rounded square behind the mail icon */
+.mail-icon-box {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #9b7fd4, #7c5cbf); /* purple gradient */
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;  /* centres the icon inside the box */
+}
+
+/* "We've sent a 6-digit code to your email" text */
+.verify-subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 28px;
+    line-height: 1.5;
+}
+
+/* The email address part â€” shown in purple so it stands out */
+.verify-subtitle span {
+    color: #7c5cbf;
+    font-weight: bold;
+}
+
+/* The row that holds all 6 digit boxes side by side */
+.code-row {
+    display: flex;
+    justify-content: center;  /* centres the group of boxes */
+    gap: 10px;                /* space between each box */
+    margin-bottom: 24px;
+}
+
+/* Each individual digit input box */
+.code-box {
+    width: 48px !important;   /* !important overrides the global input { width: 100% } in register.css */
+    height: 52px;
+    padding: 0 !important;    /* !important removes default padding so the digit stays centred */
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #2d2060;
+    background: #f5f2fd;
+    border: 1.5px solid #e8e1f7;
+    border-radius: 12px;
+    outline: none;
+}
+
+/* Highlight the box the user is currently typing in */
+.code-box:focus {
+    border-color: #7c5cbf;
+    background: #ede8fb;
+}
+
+/* "Didn't receive the code?" line at the bottom */
+.resend-row {
+    text-align: center;
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 16px;
+}
+
+/* "Resend Code" â€” styled to look like a link, not a button */
+.resend-row button {
+    background: none;
+    border: none;
+    color: #7c5cbf;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    width: auto;              /* overrides the global button { width: 100% } in register.css */
+}
+
+.resend-row button:hover {
+    text-decoration: underline;
+}
