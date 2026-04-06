@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <circle cx="12" cy="8" r="5"/>
             <ellipse cx="12" cy="16" rx="7" ry="3"/>
         </svg>
-        Expenses Tracking
+        FinTrack
     </p>
 
     <!-- Show the error message if one exists -->
