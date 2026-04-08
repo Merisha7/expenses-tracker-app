@@ -1,19 +1,19 @@
 <?php
-// session_start();
-// // Include database connection file
-// include '../config/db.php';
+session_start();
+// Include database connection file
+include '../config/db.php';
 
-// /* Redirect if user is not logged in */
-// if (!isset($_SESSION['user_id'])) {
-//     header("Location: ../auth/login.php");
-//     exit();
-// }
+/* Redirect if user is not logged in */
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../auth/login.php");
+    exit();
+}
 
 /* Get logged in user's ID */
-// $user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['user_id'];
 
 // For testing
-$user_id = 1;
+// $user_id = 1;
 
 // Variables to store message and message type (success/error)
 $message = "";
