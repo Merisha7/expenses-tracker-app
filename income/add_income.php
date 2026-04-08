@@ -1,8 +1,19 @@
 <?php
-// Include database connection file
-include '../config/db.php';
+// session_start();
+// // Include database connection file
+// include '../config/db.php';
 
-// Hardcoded user ID (currently fixed as 1)
+// // Redirect to login if user not logged in 
+// if (!isset($_SESSION['user_id'])) {
+//     header("Location: ../auth/login.php");
+//     exit();
+// }
+
+// //Get logged in user's ID from session 
+// $user_id = $_SESSION['user_id'];
+
+
+// For Testing
 $user_id = 1;
 
 // Variables to store message text and type 
