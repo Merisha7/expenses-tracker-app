@@ -64,12 +64,12 @@ function renderActivity(rows) {
         
         tr.innerHTML = `
             <td>${formatShortDate(item.date)}</td>
-            <td><span class="activity-icon">${icon}</span> ${item.description}</td>
+                <td>${item.description}</td>
             <td class="${cls}">${sign}${formatCurrency(item.amount)}</td>
             <td><span class="status-pill ${statusCls}">${statusLabel}</span></td>
             <td>
-                <a class="btn btn-edit" href="edit.php?id=${item.id}">Edit</a>
-                <a class="btn btn-delete" href="delete.php?id=${item.id}">Del</a>
+                <a class="btn btn-edit" href="../edit.php?id=${item.id}">Edit</a>
+                <a class="btn btn-delete" href="../delete.php?id=${item.id}">Del</a>
             </td>
         `;
         body.appendChild(tr);
@@ -162,6 +162,9 @@ async function loadDashboard() {
         setText('totalBalance', formatCurrency(data.totalBalance));
         setText('monthlyIncome', formatCurrency(data.monthlyIncome));
         setText('monthlyExpenses', formatCurrency(data.monthlyExpenses));
+        setText('budgetBalance', formatCurrency(data.totalIncome));
+        setText('budgetExpenses', formatCurrency(data.totalExpenses));
+        setText('budgetRemaining', formatCurrency(Math.max((data.totalIncome || 0) - (data.totalExpenses || 0), 0)));
 
         renderActivity(data.recentActivity);
         renderChart(data.chart);

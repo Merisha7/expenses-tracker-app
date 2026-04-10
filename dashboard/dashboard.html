@@ -22,12 +22,12 @@
             </div>
 
             <nav class="menu">
-                <a class="menu-item active" href="dashboard.html">Dashboard</a>
-                <a class="menu-item" href="#">Add Income</a>
-                <a class="menu-item" href="#">Add Expenses</a>
+                <a class="menu-item active" href="dashboard.html"><span class="menu-icon">▣</span>Dashboard</a>
+                <a class="menu-item" href="../income/add_income.php"><span class="menu-icon">＋</span>Add Income</a>
+                <a class="menu-item" href="../expenses/add_expenses.php"><span class="menu-icon">－</span>Add Expenses</a>
             </nav>
 
-            <a class="logout-link" href="#">Log Out</a>
+            <a class="logout-link" href="../auth/logout.php"><span class="logout-icon">↩</span>Log Out</a>
         </aside>
 
         <main class="main-content">
@@ -67,6 +67,21 @@
                 <article class="panel summary-panel">
                     <h3>Budget Summary</h3>
                     <p class="panel-text">Track your financial activity and manage your budget effectively. Monitor your monthly income, expenses and overall balance.</p>
+
+                    <div class="budget-mini-cards">
+                        <div class="budget-mini-card budget-mini-purple">
+                            <span>TOTAL INCOME</span>
+                            <strong id="budgetBalance">$0.00</strong>
+                        </div>
+                        <div class="budget-mini-card budget-mini-pink">
+                            <span>TOTAL EXPENSES</span>
+                            <strong id="budgetExpenses">$0.00</strong>
+                        </div>
+                        <div class="budget-mini-card budget-mini-green">
+                            <span>REMAINING BALANCE</span>
+                            <strong id="budgetRemaining">$0.00</strong>
+                        </div>
+                    </div>
 
                     <h4>Recent Activity</h4>
                     <table>
