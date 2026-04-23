@@ -1,4 +1,5 @@
 <?php
-// Logout functionality
-// Developer 2
-?>
+session_start();
+session_destroy();
+header("Location: ./login.php?action=login&msg=logged_out");
+exit;
