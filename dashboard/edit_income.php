@@ -1,4 +1,7 @@
 <?php
+require_once './config/db.php';
+session_start();
+
 // edit_income.php
 
 // --- STEP 1: Load existing income data (replace with real DB query) ---

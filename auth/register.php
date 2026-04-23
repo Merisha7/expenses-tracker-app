@@ -1,4 +1,6 @@
 <?php
+require_once '../config/db.php';
+
 // Start the session so we can store data (like the email) across pages
 session_start();
 

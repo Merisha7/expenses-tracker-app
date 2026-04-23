@@ -1,6 +1,8 @@
 <?php
-// sessions let us pass data between pages (like passing a note from one page to another)
+require_once '../config/db.php';
 session_start();
+
+// sessions let us pass data between pages (like passing a note from one page to another)
 
 // if someone opens this page directly without registering, kick them back
 if (empty($_SESSION['verify_email'])) {

@@ -1,4 +1,7 @@
 <?php
+require_once './config/db.php';
+session_start();
+
 // edit_expenses.php
 
 // --- STEP 1: Load existing expense data (replace with real DB query) ---
