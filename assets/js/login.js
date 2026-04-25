@@ -91,9 +91,61 @@ function togglePw(id) {
     input.type = isHidden ? 'text' : 'password';
 
     // Swap icon: crossed-eye when visible, normal eye when hidden
-    svg.innerHTML = isHidden
-        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="#b5acd4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="#b5acd4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="1" y1="1" x2="23" y2="23" stroke="#b5acd4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>'
-        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#b5acd4" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="12" cy="12" r="3" stroke="#b5acd4" stroke-width="1.6" fill="none"/>';
+    // Clear existing content
+    while (svg.firstChild) {
+        svg.removeChild(svg.firstChild);
+    }
+
+    if (isHidden) {
+        // Show crossed-eye icon (for when password is now visible)
+        var path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path1.setAttribute('d', 'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94');
+        path1.setAttribute('stroke', '#b5acd4');
+        path1.setAttribute('stroke-width', '1.6');
+        path1.setAttribute('stroke-linecap', 'round');
+        path1.setAttribute('stroke-linejoin', 'round');
+        path1.setAttribute('fill', 'none');
+        svg.appendChild(path1);
+
+        var path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path2.setAttribute('d', 'M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19');
+        path2.setAttribute('stroke', '#b5acd4');
+        path2.setAttribute('stroke-width', '1.6');
+        path2.setAttribute('stroke-linecap', 'round');
+        path2.setAttribute('stroke-linejoin', 'round');
+        path2.setAttribute('fill', 'none');
+        svg.appendChild(path2);
+
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '1');
+        line.setAttribute('y1', '1');
+        line.setAttribute('x2', '23');
+        line.setAttribute('y2', '23');
+        line.setAttribute('stroke', '#b5acd4');
+        line.setAttribute('stroke-width', '1.6');
+        line.setAttribute('stroke-linecap', 'round');
+        line.setAttribute('stroke-linejoin', 'round');
+        svg.appendChild(line);
+    } else {
+        // Show normal eye icon (for when password is hidden again)
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z');
+        path.setAttribute('stroke', '#b5acd4');
+        path.setAttribute('stroke-width', '1.6');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        path.setAttribute('fill', 'none');
+        svg.appendChild(path);
+
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '3');
+        circle.setAttribute('stroke', '#b5acd4');
+        circle.setAttribute('stroke-width', '1.6');
+        circle.setAttribute('fill', 'none');
+        svg.appendChild(circle);
+    }
 }
 
 // Logout: 1st click = ask "confirm?", 2nd click = actually log out

@@ -95,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['record_id'])) {
 
         <!-- If user clicks "Yes, Delete" → form submits as POST to trigger actual deletion -->
         <!-- If user clicks "Cancel" → goes back to the previous page -->
-        <form method="POST" action="delete_record.php">
+        <form method="POST" action="delete.php">
             <input type="hidden" name="record_id" value="<?= $record['id'] ?>">
             <input type="hidden" name="confirmed" value="yes"> <!-- proof that user confirmed -->
             <button type="submit">Yes, Delete</button>

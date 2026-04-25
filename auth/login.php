@@ -1,8 +1,16 @@
 <?php
 session_start();
+
+// Load stored credentials from file
+$credentialsFile = __DIR__ . '/credentials.json';
+$storedCreds = [];
+if (file_exists($credentialsFile)) {
+    $storedCreds = json_decode(file_get_contents($credentialsFile), true) ?? [];
+}
+
 //Demo credentials 
 $correct_email    = "demo@expenses.com";
-$correct_password = "password123";
+$correct_password = $storedCreds[$correct_email] ?? "password123";
 
 //Which page are we on?
 $page  = $_GET['action'] ?? 'login';
@@ -11,7 +19,6 @@ $error = $success = "";
 //Redirect rules 
 if ($page == 'login'   && isset($_SESSION['user_email']))  { redirect('welcome'); }
 if ($page == 'welcome' && !isset($_SESSION['user_email'])) { redirect('login'); }
-if ($page == 'logout')  { session_destroy(); redirect('login', 'logged_out'); }
 
 //LOGIN
 if ($page == 'login' && isPost()) {
@@ -86,6 +93,9 @@ if ($page == 'reset' && isPost()) {
     } elseif ($newpass != $confirm) {
         $error = "Passwords do not match.";
     } else {
+        // Save the new password to file
+        $storedCreds[$_SESSION['reset_email']] = $newpass;
+        file_put_contents($credentialsFile, json_encode($storedCreds, JSON_PRETTY_PRINT));
         unset($_SESSION['reset_code'], $_SESSION['reset_email'], $_SESSION['reset_expires']);
         redirect('login', 'password_reset');
     }
@@ -192,7 +202,7 @@ function otpBoxes($hiddenId) { ?>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>FinTrack</title>
-  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="../assets/css/login.css">
 </head>
 <body>
 
@@ -276,11 +286,11 @@ function otpBoxes($hiddenId) { ?>
     Logged in as <b><?= htmlspecialchars($user_email) ?></b><br>
     Session started: <?= htmlspecialchars($login_time) ?>
   </p>
-  <a href="login.php?action=logout" class="btn" id="logoutBtn"
+  <a href="logout.php" class="btn" id="logoutBtn"
      onclick="return confirmLogout(event,this)">↩ Log Out</a>
 </div>
 
 <?php endif ?>
-<script src="login.js"></script>
+<script src="../assets/js/login.js"></script>
 </body>
 </html>
