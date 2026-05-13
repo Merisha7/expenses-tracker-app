@@ -34,24 +34,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
 
         // Prepare SQL query to insert data into income table
-        $stmt = $conn->prepare(
-            "INSERT INTO income (user_id, amount, source, description, date) VALUES (?, ?, ?, ?, ?)"
-        );
+        try {
+            $stmt = $pdo->prepare(
+                "INSERT INTO income (user_id, amount, source, description, date) VALUES (?, ?, ?, ?, ?)"
+            );
 
-        // Bind values to query placeholders
-        $stmt->bind_param("idsss", $user_id, $amount, $source, $description, $date);
-
-        // Execute the query
-        if ($stmt->execute()) {
-            $message = "Income added successfully!";
-            $messageType = "success";
-        } else {
-            $message = "Error adding income!";
+            // Execute the query
+            if ($stmt->execute([$user_id, $amount, $source, $description, $date])) {
+                $message = "Income added successfully!";
+                $messageType = "success";
+            } else {
+                $message = "Error adding income!";
+                $messageType = "error";
+            }
+        } catch (PDOException $e) {
+            $message = "Database error: " . $e->getMessage();
             $messageType = "error";
         }
-
-        
-        $stmt->close();
     }
 }
 ?>
@@ -131,6 +130,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             Add Expenses
         </a>
 
+        <a href="../goals/set_goals.php">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="9" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4" stroke-width="2"/>
+            </svg>
+            Set Goals
+        </a>
+
+        <a href="../goals/view_goals.html">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <!-- check marks -->
+                <path stroke-width="2" d="M5 6l2 2 4-4"/>
+                <path stroke-width="2" d="M5 12l2 2 4-4"/>
+                <path stroke-width="2" d="M5 18l2 2 4-4"/>
+        
+        <!-- lines -->
+                <path stroke-width="2" d="M11 6h8"/>
+                <path stroke-width="2" d="M11 12h8"/>
+                <path stroke-width="2" d="M11 18h8"/>
+            </svg>
+            View Goals
+        </a>
+        
+         <a href="../calendar/calendar.html">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M3 8h18M8 3v5M16 3v5M3 8v13h18V8"/>
+            </svg>
+            Calendar
+        </a>
+        
+        
         <!-- Logout link-->
         <a href="../auth/logout.php" class="logout">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">

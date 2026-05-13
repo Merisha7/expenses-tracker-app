@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"> <!-- THIS FIXES IT -->
+    <title>Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="../assets/css/transactions.css">
+    <link rel="stylesheet" href="../assets/css/calendar.css">
+</head>
+<body>
+
+<div class="main">
+
+    <div class="sidebar">
+
+        <div class="logo">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M3 7h18v13H3zM16 3H5a2 2 0 00-2 2v2h18V5a2 2 0 00-2-2z"/>
+            </svg>
+            FinTrack
+        </div>
+
+        <a href="../dashboard/dashboard.html">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>
+            </svg>
+            Dashboard
+        </a>
+
+        <a href="../income/add_income.php">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M12 5v14M5 12h14"/>
+            </svg>
+            Add Income
+        </a>
+
+        <a href="../expenses/add_expenses.php">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M5 12h14"/>
+            </svg>
+            Add Expenses
+        </a>
+
+        <a href="../goals/set_goals.php">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="9" stroke-width="2"/>
+                <circle cx="12" cy="12" r="4" stroke-width="2"/>
+            </svg>
+            Set Goals
+        </a>
+
+        <a href="../goals/view_goals.php">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <!-- check marks -->
+                <path stroke-width="2" d="M5 6l2 2 4-4"/>
+                <path stroke-width="2" d="M5 12l2 2 4-4"/>
+                <path stroke-width="2" d="M5 18l2 2 4-4"/>
+        
+        <!-- lines -->
+                <path stroke-width="2" d="M11 6h8"/>
+                <path stroke-width="2" d="M11 12h8"/>
+                <path stroke-width="2" d="M11 18h8"/>
+            </svg>
+            View Goals
+        </a>
+
+        <a href="calendar.html" class="active">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M3 8h18M8 3v5M16 3v5M3 8v13h18V8"/>
+            </svg>
+            Calendar
+        </a>
+
+        <a href="../auth/logout.php" class="logout">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M15 12H3m6-6l-6 6 6 6M21 3v18"/>
+            </svg>
+            Log Out
+        </a>
+
+    </div>
+
+    <div class="content">
+        <h1>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M3 8h18M8 3v5M16 3v5M3 8v13h18V8"/>
+            </svg>
+            CALENDAR
+        </h1> 
+        
+        <p class="subtitle">Track your income, expenses, and goals</p>
+
+        <div id="detailsBox" class="details-box">
+            Select a date to view details
+        </div>
+        <div class="card">
+
+            <div class="calendar-header">
+                <span id="prev">&#10094;</span>
+                <h2 id="monthYear"></h2>
+                <span id="next">&#10095;</span>
+            </div>
+
+            <div class="weekdays">
+                <div>Sun</div><div>Mon</div><div>Tue</div>
+                <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+
+            <div id="calendar"></div>
+
+            <div class="legend">
+                <span class="income">💰 Income Added</span>
+                <span class="expense">💸 Expenses Added</span>
+                <span class="goal">🎯 Goal Deadlines</span>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div id="popup" class="popup-overlay">
+    <div class="popup-box">
+
+        <span class="close-btn" onclick="closePopup()">×</span>
+
+        <div id="popupContent">
+            <!-- dynamic content comes here -->
+        </div>
+
+    </div>
+</div>
+
+<script src="../assets/js/calendar.js"></script>
+</body>
+</html>
