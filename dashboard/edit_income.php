@@ -1,35 +1,66 @@
 <?php
-require_once './config/db.php';
+require_once __DIR__ . '/../config/db.php';
 session_start();
 
-// edit_income.php
+$currentUserId = $_SESSION['user_id'] ?? 0;
+if (!$currentUserId) {
+    header('Location: ../auth/login.php');
+    exit;
+}
+$message = '';
+$income = [
+    'id' => '',
+    'amount' => '',
+    'source' => '',
+    'date' => '',
+    'description' => ''
+];
+$recordId = 0;
+$loadFromDb = true;
 
-// --- STEP 1: Load existing income data (replace with real DB query) ---
-// Example real query: SELECT * FROM income WHERE id = $_GET['id']
-$income = [];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $recordId = (int) ($_POST['id'] ?? 0);
+    $amount = trim($_POST['amount'] ?? '');
+    $source = trim($_POST['source'] ?? '');
+    $date = trim($_POST['date'] ?? '');
+    $description = trim($_POST['description'] ?? '');
 
-// --- STEP 2: Handle form submission ---
-$message = "";
+    if ($recordId <= 0 || empty($amount) || empty($source) || empty($date)) {
+        $message = '<div class="message error">Please fill in Amount, Source, and Date.</div>';
+        $income = [
+            'id' => $recordId,
+            'amount' => $amount,
+            'source' => $source,
+            'date' => $date,
+            'description' => $description
+        ];
+        $loadFromDb = false;
+    } else {
+        $stmt = $pdo->prepare('UPDATE income SET amount = ?, source = ?, date = ?, description = ? WHERE income_id = ? AND user_id = ?');
+        $stmt->execute([$amount, $source, $date, $description, $recordId, $currentUserId]);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        if ($stmt->rowCount() === 0) {
+            $message = '<div class="message error">Income not found or permission denied.</div>';
+        } else {
+            $message = '<div class="message success">Income updated successfully!</div>';
+        }
+    }
+} else {
+    $recordId = (int) ($_GET['id'] ?? 0);
+}
 
-  $amount      = trim($_POST["amount"]);
-  $source      = trim($_POST["source"]);
-  $date        = trim($_POST["date"]);
-  $description = trim($_POST["description"]);
+if ($recordId <= 0) {
+    die('Invalid income ID.');
+}
 
-  if (empty($amount) || empty($source) || empty($date)) {
-    $message = '<div class="message error">Please fill in Amount, Source, and Date.</div>';
-  } else {
-    // Real project: UPDATE income SET amount=?, source=?, date=?, description=? WHERE id=?
+if ($loadFromDb) {
+    $stmt = $pdo->prepare('SELECT income_id AS id, amount, source, date, COALESCE(description, "") AS description FROM income WHERE income_id = ? AND user_id = ?');
+    $stmt->execute([$recordId, $currentUserId]);
+    $income = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $message = '<div class="message success">Income updated successfully!</div>';
-
-    $income["amount"]      = $amount;
-    $income["source"]      = $source;
-    $income["date"]        = $date;
-    $income["description"] = $description;
-  }
+    if (!$income) {
+        die('Income not found.');
+    }
 }
 ?>
 
@@ -38,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
   <meta charset="UTF-8" />
   <title>FinTrack - Edit Income</title>
-  <link rel="stylesheet" href="assets/css/edit_form.css" />
+  <link rel="stylesheet" href="../assets/css/edit_form.css" />
 </head>
 <body>
 
@@ -57,10 +88,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <div class="logo-text">FinTrack</div>
     </div>
 
-    <a class="nav-link" href="dashboard.php">⊞ Dashboard</a>
-    <a class="nav-link" href="add_income.php">⊕ Add Income</a>
-    <a class="nav-link" href="add_expenses.php">⊖ Add Expenses</a>
-    <a class="logout" href="logout.php">↩ Log Out</a>
+    <a class="nav-link" href="dashboard.html">⊞ Dashboard</a>
+    <a class="nav-link" href="../income/add_income.php">⊕ Add Income</a>
+    <a class="nav-link" href="../expenses/add_expenses.php">⊖ Add Expenses</a>
+    <a class="nav-link" href="../goals/set_goals.php">◎ Set Goals</a>
+    <a class="nav-link" href="../goals/view_goals.php">☑ View Goals</a>
+    <a class="nav-link" href="../calendar/calendar.html">◷ Calendar</a>
+    <a class="logout" href="../auth/logout.php">↩ Log Out</a>
 
   </div>
 
@@ -90,7 +124,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <textarea name="description"><?php echo $income['description']; ?></textarea>
 
         <div class="btn-row">
-          <a class="btn btn-cancel" href="dashboard.php">CANCEL</a>
+          <a class="btn btn-cancel" href="dashboard.html">CANCEL</a>
           <button class="btn btn-save-income" type="submit">SAVE EDIT</button>
         </div>
 

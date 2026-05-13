@@ -1,33 +1,65 @@
 <?php
-require_once './config/db.php';
+require_once __DIR__ . '/../config/db.php';
 session_start();
 
-// edit_expenses.php
+$currentUserId = $_SESSION['user_id'] ?? 0;
+if (!$currentUserId) {
+    header('Location: ../auth/login.php');
+    exit;
+}
 
-// --- STEP 1: Load existing expense data (replace with real DB query) ---
-// Example real query: SELECT * FROM expenses WHERE id = $_GET['id']
-$expense = [];
+$message = '';
+ 
+$expense = [
+    'id' => '',
+    'amount' => '',
+    'date' => '',
+    'description' => ''
+];
+$recordId = 0;
+$loadFromDb = true;
 
-// --- STEP 2: Handle form submission ---
-$message = "";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $recordId = (int) ($_POST['id'] ?? 0);
+    $amount = trim($_POST['amount'] ?? '');
+    $date = trim($_POST['date'] ?? '');
+    $description = trim($_POST['description'] ?? '');
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($recordId <= 0 || empty($amount) || empty($date)) {
+        $message = '<div class="message error">Please fill in Amount and Date.</div>';
+        $expense = [
+            'id' => $recordId,
+            'amount' => $amount,
+            'date' => $date,
+            'description' => $description
+        ];
+        $loadFromDb = false;
+    } else {
+        $stmt = $pdo->prepare('UPDATE expenses SET amount = ?, date = ?, description = ? WHERE expenses_id = ? AND user_id = ?');
+        $stmt->execute([$amount, $date, $description, $recordId, $currentUserId]);
 
-  $amount      = trim($_POST["amount"]);
-  $date        = trim($_POST["date"]);
-  $description = trim($_POST["description"]);
+        if ($stmt->rowCount() === 0) {
+            $message = '<div class="message error">Expense not found or permission denied.</div>';
+        } else {
+            $message = '<div class="message success">Expense updated successfully!</div>';
+        }
+    }
+} else {
+    $recordId = (int) ($_GET['id'] ?? 0);
+}
 
-  if (empty($amount) || empty($date)) {
-    $message = '<div class="message error">Please fill in Amount and Date.</div>';
-  } else {
-    // Real project: UPDATE expenses SET amount=?, date=?, description=? WHERE id=?
+if ($recordId <= 0) {
+    die('Invalid expense ID.');
+}
 
-    $message = '<div class="message success">Expense updated successfully!</div>';
+if ($loadFromDb) {
+    $stmt = $pdo->prepare('SELECT expenses_id AS id, amount, date, COALESCE(description, "") AS description FROM expenses WHERE expenses_id = ? AND user_id = ?');
+    $stmt->execute([$recordId, $currentUserId]);
+    $expense = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $expense["amount"]      = $amount;
-    $expense["date"]        = $date;
-    $expense["description"] = $description;
-  }
+    if (!$expense) {
+        die('Expense not found.');
+    }
 }
 ?>
 
@@ -36,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
   <meta charset="UTF-8" />
   <title>FinTrack - Edit Expenses</title>
-  <link rel="stylesheet" href="assets/css/edit_form.css" />
+  <link rel="stylesheet" href="../assets/css/edit_form.css" />
 </head>
 <body>
 
@@ -55,10 +87,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       <div class="logo-text">FinTrack</div>
     </div>
 
-    <a class="nav-link" href="dashboard.php">⊞ Dashboard</a>
-    <a class="nav-link" href="add_income.php">⊕ Add Income</a>
-    <a class="nav-link" href="add_expenses.php">⊖ Add Expenses</a>
-    <a class="logout" href="logout.php">↩ Log Out</a>
+    <a class="nav-link" href="dashboard.html">⊞ Dashboard</a>
+    <a class="nav-link" href="../income/add_income.php">⊕ Add Income</a>
+    <a class="nav-link" href="../expenses/add_expenses.php">⊖ Add Expenses</a>
+    <a class="nav-link" href="../goals/set_goals.php">◎ Set Goals</a>
+    <a class="nav-link" href="../goals/view_goals.php">☑ View Goals</a>
+    <a class="nav-link" href="../calendar/calendar.html">◷ Calendar</a>
+    <a class="logout" href="../auth/logout.php">↩ Log Out</a>
 
   </div>
 
@@ -85,7 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <textarea name="description"><?php echo $expense['description']; ?></textarea>
 
         <div class="btn-row">
-          <a class="btn btn-cancel" href="dashboard.php">CANCEL</a>
+          <a class="btn btn-cancel" href="dashboard.html">CANCEL</a>
           <button class="btn btn-save-expense" type="submit">SAVE EDIT</button>
         </div>
 

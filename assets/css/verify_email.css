@@ -1,17 +1,23 @@
-/* Back arrow link at the top left of the card */
+/* =============================================
+   verify_email.css — extra styles for
+   verify_email.php (layered on top of register.css)
+   ============================================= */
+
+/* ---- Back arrow link ---- */
 .back-link {
-    display: inline-flex;     /* puts the arrow icon and any text side by side */
-    align-items: center;      /* vertically centers the icon */
+    display: inline-flex;
+    align-items: center;
     color: #7c5cbf;
     text-decoration: none;
     margin-bottom: 20px;
+    transition: opacity 0.2s;
 }
 
 .back-link:hover {
-    opacity: 0.75;            /* slightly fades out when hovered */
+    opacity: 0.7;
 }
 
-/* "VERIFY EMAIL" heading */
+/* ---- "VERIFY EMAIL" heading ---- */
 .verify-title {
     text-align: center;
     color: #2d2060;
@@ -21,69 +27,86 @@
     margin-bottom: 24px;
 }
 
-/* Wrapper that centres the mail icon box horizontally */
+/* ---- Purple mail icon box ---- */
 .mail-icon-wrap {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
 }
 
-/* The purple rounded square behind the mail icon */
 .mail-icon-box {
     width: 64px;
     height: 64px;
-    background: linear-gradient(135deg, #9b7fd4, #7c5cbf); /* purple gradient */
+    background: linear-gradient(135deg, #9b7fd4, #7c5cbf);
     border-radius: 18px;
     display: flex;
     align-items: center;
-    justify-content: center;  /* centres the icon inside the box */
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(124, 92, 191, 0.30);
 }
 
-/* "We've sent a 6-digit code to your email" text */
+/* ---- "We've sent a code to your email" ---- */
 .verify-subtitle {
     text-align: center;
     font-size: 14px;
     color: #888;
-    margin-bottom: 28px;
-    line-height: 1.5;
+    margin-bottom: 16px;
+    line-height: 1.6;
 }
 
-/* The email address part â€” shown in purple so it stands out */
 .verify-subtitle span {
     color: #7c5cbf;
     font-weight: bold;
 }
 
-/* The row that holds all 6 digit boxes side by side */
+/* ---- Countdown timer ---- */
+.timer-text {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+.timer-text #countdown {
+    font-weight: bold;
+    color: #7c5cbf;
+}
+
+.timer-text.expired {
+    color: #c62828;
+    font-weight: bold;
+}
+
+/* ---- 6-digit code row ---- */
 .code-row {
     display: flex;
-    justify-content: center;  /* centres the group of boxes */
-    gap: 10px;                /* space between each box */
+    justify-content: center;
+    gap: 10px;
     margin-bottom: 24px;
 }
 
-/* Each individual digit input box */
+/* Individual digit box */
 .code-box {
-    width: 48px !important;   /* !important overrides the global input { width: 100% } in register.css */
-    height: 52px;
-    padding: 0 !important;    /* !important removes default padding so the digit stays centred */
+    width: 48px !important;
+    height: 54px;
+    padding: 0 !important;
     text-align: center;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #2d2060;
     background: #f5f2fd;
     border: 1.5px solid #e8e1f7;
     border-radius: 12px;
     outline: none;
+    transition: border-color 0.2s, background 0.2s;
 }
 
-/* Highlight the box the user is currently typing in */
 .code-box:focus {
     border-color: #7c5cbf;
     background: #ede8fb;
 }
 
-/* "Didn't receive the code?" line at the bottom */
+/* ---- "Didn't receive the code?" row ---- */
 .resend-row {
     text-align: center;
     font-size: 13px;
@@ -91,18 +114,23 @@
     margin-top: 16px;
 }
 
-/* "Resend Code" â€” styled to look like a link, not a button */
-.resend-row button {
-    background: none;
-    border: none;
-    color: #7c5cbf;
+/* Resend button — looks like a link */
+.resend-row button,
+.resend-btn {
+    background: none !important;
+    border: none !important;
+    color: #7c5cbf !important;
     font-weight: bold;
     font-size: 13px;
     cursor: pointer;
-    padding: 0;
-    width: auto;              /* overrides the global button { width: 100% } in register.css */
+    padding: 0 !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    letter-spacing: 0;
 }
 
-.resend-row button:hover {
+.resend-row button:hover,
+.resend-btn:hover {
     text-decoration: underline;
+    background: none !important;
 }

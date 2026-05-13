@@ -2,76 +2,145 @@
 require_once '../config/db.php';
 session_start();
 
-// sessions let us pass data between pages (like passing a note from one page to another)
-
-// if someone opens this page directly without registering, kick them back
-if (empty($_SESSION['verify_email'])) {
+// Redirect back if someone opens this page directly
+if (empty($_SESSION['verify_email']) || empty($_SESSION['verify_password'])) {
     header("Location: register.php");
     exit;
 }
 
-// get the email the user typed during registration
 $email   = $_SESSION['verify_email'];
+$name    = $_SESSION['verify_name'] ?? '';
+$password_hash = $_SESSION['verify_password'] ?? '';
 $error   = "";
 $success = "";
 
-// set the demo code the first time this page loads
-// SPRINT 2: swap "123456" with a real random code and send it by email
-if (empty($_SESSION['verify_code'])) {
-    $_SESSION['verify_code']      = "123456"; // demo code — always 123456 for now
-    $_SESSION['verify_code_time'] = time();   // save what time the code was created
+// -------------------------------------------------------
+// Helper: send OTP email via Mailtrap
+// -------------------------------------------------------
+function sendOtpEmail($toEmail, $otp) {
+    $autoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($autoload)) {
+    require_once $autoload;
+} else {
+    die("Composer missing. Run: composer require phpmailer/phpmailer");
 }
 
-// this runs when the user clicks any button on the page
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'sandbox.smtp.mailtrap.io';
+        $mail->SMTPAuth   = true;
+        $mail->Port = 587;
+        $mail->Username   = '19198d8c9212a8';
+        $mail->Password   = '768c8dbc28e41c';
+        $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->setFrom('no-reply@fintrack.app', 'FinTrack');
+        $mail->addAddress($toEmail);
+
+        $mail->isHTML(true);
+        $mail->Subject = 'Your FinTrack Verification Code';
+        $mail->Body    = "
+            <div style='font-family:Arial,sans-serif;max-width:480px;margin:auto;
+                        padding:30px;background:#f0ecfb;border-radius:12px;'>
+                <h2 style='color:#2d2060;text-align:center;margin-bottom:4px;'>FinTrack</h2>
+                <p style='text-align:center;color:#7c5cbf;font-size:13px;margin-top:0;'>
+                    Expense Tracker
+                </p>
+                <div style='background:#fff;border-radius:10px;padding:28px;text-align:center;
+                            box-shadow:0 4px 20px rgba(100,80,180,0.10);'>
+                    <p style='color:#555;font-size:15px;'>Your verification code is:</p>
+                    <div style='font-size:40px;font-weight:bold;letter-spacing:12px;
+                                color:#7c5cbf;margin:24px 0;background:#f5f2fd;
+                                padding:16px;border-radius:10px;'>{$otp}</div>
+                    <p style='color:#aaa;font-size:13px;'>
+                        This code expires in <strong>10 minutes</strong>.
+                    </p>
+                    <p style='color:#aaa;font-size:12px;margin-top:16px;'>
+                        If you did not create a FinTrack account, you can safely ignore this email.
+                    </p>
+                </div>
+            </div>
+        ";
+        $mail->AltBody = "Your FinTrack verification code is: {$otp}. It expires in 10 minutes.";
+
+        $mail->send();
+        return true;
+
+    } catch (\PHPMailer\PHPMailer\Exception $e) {
+        return $mail->ErrorInfo;
+    }
+}
+
+// -------------------------------------------------------
+// Handle POST requests
+// -------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    // user clicked "Resend Code"
+    // --- Resend button clicked ---
     if (isset($_POST['resend'])) {
-        $_SESSION['verify_code']      = "123456"; // reset demo code
+        $newOtp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $_SESSION['verify_code']      = $newOtp;
         $_SESSION['verify_code_time'] = time();
-        $success = "Code resent! Use demo code: 123456";
 
-    // user clicked "Verify Email"
+        $result = sendOtpEmail($email, $newOtp);
+        if ($result === true) {
+            $success = "A new code has been sent to your email.";
+        } else {
+            $error = "Failed to resend. Please try again. (Error: {$result})";
+        }
+
+    // --- Verify button clicked ---
     } else {
+        $entered_code = trim(
+            $_POST['digit_1'] . $_POST['digit_2'] . $_POST['digit_3'] .
+            $_POST['digit_4'] . $_POST['digit_5'] . $_POST['digit_6']
+        );
 
-        // join the 6 boxes into one string e.g. "1","2","3","4","5","6" → "123456"
-        $entered_code = $_POST['digit_1'] . $_POST['digit_2'] . $_POST['digit_3']
-                      . $_POST['digit_4'] . $_POST['digit_5'] . $_POST['digit_6'];
-
-        // check 1 — did the user fill all 6 boxes?
         if (strlen($entered_code) < 6) {
             $error = "Please enter all 6 digits.";
 
-        // check 2 — was the code created more than 10 minutes ago? (600 seconds)
         } elseif (time() - $_SESSION['verify_code_time'] > 600) {
             $error = "Your code has expired. Please request a new one.";
 
-        // check 3 — does what the user typed match the code we saved?
         } elseif ($entered_code !== $_SESSION['verify_code']) {
             $error = "Incorrect code. Please try again.";
 
-        // all 3 checks passed — the email is verified!
         } else {
-            // clear the verification data from the session
-            unset($_SESSION['verify_code']);
-            unset($_SESSION['verify_code_time']);
-            unset($_SESSION['verify_email']);
-
-            // TODO Sprint 2: mark this user as verified in your database
-
-            // send the user to the login page
-            header("Location: login.php?verified=1");
-            exit;
+            // ✅ Verified! Save user to database
+            try {
+                if ($pdo) {
+                    $stmt = $pdo->prepare("INSERT INTO users (name, email, password, created_at) VALUES (?, ?, ?, NOW())");
+                    $stmt->execute([$name, $email, $password_hash]);
+                    
+                    // Clear session after successful registration
+                    unset($_SESSION['verify_code'], $_SESSION['verify_code_time'], $_SESSION['verify_email'], $_SESSION['verify_name'], $_SESSION['verify_password']);
+                    
+                    header("Location: login.php?verified=1");
+                    exit;
+                } else {
+                    $error = "Database connection failed. Please try again later.";
+                }
+            }catch (PDOException $e) {
+                if ($e->getCode() == 23000) {
+                    $error = "This email is already registered.";
+                    } else {
+                        $error = "Database error. Try again.";
+                        }
+}
         }
     }
 }
-?>
 
+// How many seconds are left before the code expires
+$timeLeft = 600 - (time() - ($_SESSION['verify_code_time'] ?? time()));
+$timeLeft = max(0, $timeLeft);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Verify Email</title>
+    <title>Verify Email – FinTrack</title>
     <link rel="stylesheet" href="../assets/css/register.css">
     <link rel="stylesheet" href="../assets/css/verify_email.css">
 </head>
@@ -79,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <div class="card">
 
-    <!-- back arrow to go back to register page -->
+    <!-- Back arrow -->
     <a class="back-link" href="register.php">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
              stroke="#7c5cbf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -87,10 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </svg>
     </a>
 
-    <!-- page title -->
     <h2 class="verify-title">VERIFY EMAIL</h2>
 
-    <!-- purple box with mail icon -->
+    <!-- Mail icon -->
     <div class="mail-icon-wrap">
         <div class="mail-icon-box">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
@@ -100,29 +168,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
-    <!-- tell the user which email we sent the code to -->
     <p class="verify-subtitle">
         We've sent a 6-digit verification code to<br>
         <span><?php echo htmlspecialchars($email); ?></span>
     </p>
 
-    <!-- demo notice — remove this in Sprint 2 -->
-    <div class="success" style="margin-bottom: 10px;">
-        Demo mode: use code <strong>1 2 3 4 5 6</strong>
-    </div>
+    <!-- Countdown timer -->
+    <?php if ($timeLeft > 0): ?>
+        <p class="timer-text">
+            Code expires in <span id="countdown"><?php echo gmdate("i:s", $timeLeft); ?></span>
+        </p>
+    <?php else: ?>
+        <p class="timer-text expired">Code has expired. Please resend.</p>
+    <?php endif; ?>
 
-    <!-- show error if something went wrong -->
     <?php if ($error != ""): ?>
-        <div class="error"><?php echo $error; ?></div>
+        <div class="error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
-    <!-- show success message e.g. after resend -->
     <?php if ($success != ""): ?>
-        <div class="success"><?php echo $success; ?></div>
+        <div class="success"><?php echo htmlspecialchars($success); ?></div>
     <?php endif; ?>
 
-    <!-- 6 digit input boxes -->
-    <form method="POST" action="">
+    <!-- 6-digit input form -->
+    <form method="POST" action="" onsubmit="return validateCode()">
         <div class="code-row">
             <input class="code-box" type="text" name="digit_1" id="d1" maxlength="1" inputmode="numeric" autocomplete="off">
             <input class="code-box" type="text" name="digit_2" id="d2" maxlength="1" inputmode="numeric" autocomplete="off">
@@ -134,59 +203,82 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <button type="submit">VERIFY EMAIL</button>
     </form>
 
-    <!-- resend button — separate form so it doesn't submit the digits -->
+    <!-- Resend form -->
     <div class="resend-row">
         Didn't receive the code?&nbsp;
         <form method="POST" action="" style="display:inline;">
-            <button type="submit" name="resend" value="1">Resend Code</button>
+            <button type="submit" name="resend" value="1" class="resend-btn">Resend Code</button>
         </form>
     </div>
 
 </div>
 
 <script>
-    // get each box by its id
-    var box1 = document.getElementById('d1');
-    var box2 = document.getElementById('d2');
-    var box3 = document.getElementById('d3');
-    var box4 = document.getElementById('d4');
-    var box5 = document.getElementById('d5');
-    var box6 = document.getElementById('d6');
-
-    // when the user types in box 1, jump to box 2
-    box1.addEventListener('input', function() {
-        if (box1.value != '') { box2.focus(); }
+    // ---- Box auto-advance & backspace ----
+    var boxes = ['d1','d2','d3','d4','d5','d6'].map(function(id) {
+        return document.getElementById(id);
     });
 
-    // when the user types in box 2, jump to box 3
-    box2.addEventListener('input', function() {
-        if (box2.value != '') { box3.focus(); }
+    boxes.forEach(function(box, i) {
+
+        box.addEventListener('input', function() {
+            box.value = box.value.replace(/[^0-9]/g, ''); // digits only
+            if (box.value !== '' && i < boxes.length - 1) {
+                boxes[i + 1].focus();
+            }
+        });
+
+        box.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && box.value === '' && i > 0) {
+                boxes[i - 1].focus();
+            }
+        });
+
+        // Paste handler: paste full 6-digit code from email
+        box.addEventListener('paste', function(e) {
+            e.preventDefault();
+            var pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
+            if (/^\d{6}$/.test(pasted)) {
+                boxes.forEach(function(b, idx) { b.value = pasted[idx]; });
+                boxes[5].focus();
+            }
+        });
     });
 
-    // when the user types in box 3, jump to box 4
-    box3.addEventListener('input', function() {
-        if (box3.value != '') { box4.focus(); }
-    });
+    // Auto-focus first box
+    boxes[0].focus();
 
-    // when the user types in box 4, jump to box 5
-    box4.addEventListener('input', function() {
-        if (box4.value != '') { box5.focus(); }
-    });
+    // Validate all boxes filled before submit
+    function validateCode() {
+        var allFilled = boxes.every(function(b) { return b.value !== ''; });
+        if (!allFilled) {
+            alert('Please enter all 6 digits.');
+            return false;
+        }
+        return true;
+    }
 
-    // when the user types in box 5, jump to box 6
-    box5.addEventListener('input', function() {
-        if (box5.value != '') { box6.focus(); }
-    });
+    // ---- Countdown timer ----
+    var secondsLeft = <?php echo $timeLeft; ?>;
 
-    // when the user presses backspace on an empty box, go back to the previous box
-    box2.addEventListener('keydown', function(e) { if (e.key === 'Backspace' && box2.value === '') { box1.focus(); } });
-    box3.addEventListener('keydown', function(e) { if (e.key === 'Backspace' && box3.value === '') { box2.focus(); } });
-    box4.addEventListener('keydown', function(e) { if (e.key === 'Backspace' && box4.value === '') { box3.focus(); } });
-    box5.addEventListener('keydown', function(e) { if (e.key === 'Backspace' && box5.value === '') { box4.focus(); } });
-    box6.addEventListener('keydown', function(e) { if (e.key === 'Backspace' && box6.value === '') { box5.focus(); } });
+    function updateTimer() {
+        var el = document.getElementById('countdown');
+        if (!el || secondsLeft <= 0) return;
 
-    // put the cursor in box 1 as soon as the page loads
-    box1.focus();
+        secondsLeft--;
+        var m = Math.floor(secondsLeft / 60);
+        var s = secondsLeft % 60;
+        el.textContent = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+
+        if (secondsLeft <= 0) {
+            el.parentElement.className = 'timer-text expired';
+            el.parentElement.textContent = 'Code has expired. Please resend.';
+        }
+    }
+
+    if (secondsLeft > 0) {
+        setInterval(updateTimer, 1000);
+    }
 </script>
 
 </body>
