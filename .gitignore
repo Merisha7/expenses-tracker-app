@@ -1,0 +1,56 @@
+# Environment and Configuration
+.env
+.env.local
+.env.*.local
+config/db.php
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+
+# Dependencies
+vendor/
+node_modules/
+composer.lock
+
+# Session and Cache
+session/
+cache/
+*.tmp
+
+# Logs
+*.log
+logs/
+
+# OS
+.git/
+.gitignore
+.gitattributes
+
+# Database backups
+*.sql.bak
+*.sqlite
+*.db
+
+# Temporary files
+*.bak
+*.swp
+*.swo
+*~
+.temp/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
