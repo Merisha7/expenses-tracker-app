@@ -1,27 +1,18 @@
 <?php
-
-// Starts the session to access session variables like user_id
 session_start();
-
-// Includes the database connection file
 require_once "../config/db.php";
 
 // Sets the response type as JSON
 header("Content-Type: application/json");
 
 try {
-
-    // =========================
     // USER ID
-    // =========================
 
     // Gets user_id from session
     // If session user_id does not exist, default value becomes 1
     $user_id = $_SESSION['user_id'] ?? 1;
 
-    // =========================
     // CHECK SAVINGS GOALS
-    // =========================
 
     // SQL query to fetch all savings goals of the logged-in user
     $stmt = $pdo->prepare("
@@ -63,10 +54,6 @@ try {
         // Initializes empty notification type variable
         $type = "";
 
-        // =========================
-        // COMPLETED
-        // =========================
-
         // Checks if savings reached or exceeded 100%
         if ($percent >= 100) {
 
@@ -77,10 +64,6 @@ try {
             // Notification type set as completed
             $type = "completed";
         }
-
-        // =========================
-        // 80%
-        // =========================
 
         // Checks if savings reached 80% or more
         elseif ($percent >= 80) {
@@ -93,9 +76,6 @@ try {
             $type = "progress";
         }
 
-        // =========================
-        // INSERT ONLY IF NOT EXISTS
-        // =========================
 
         // Runs only if notification type is not empty
         if ($type !== "") {
@@ -143,9 +123,7 @@ try {
         }
     }
 
-    // =========================
     // MARK AS READ
-    // =========================
 
     // Checks if URL contains ?read parameter
     if (isset($_GET['read'])) {
@@ -168,10 +146,6 @@ try {
         // Stops further code execution
         exit;
     }
-
-    // =========================
-    // FETCH NOTIFICATIONS
-    // =========================
 
     // Query to fetch all notifications of the user
     $stmt = $pdo->prepare("

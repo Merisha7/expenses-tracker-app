@@ -1,19 +1,11 @@
-// Runs the code only after the full HTML document is loaded
 document.addEventListener("DOMContentLoaded", () => {
 
-    // Gets the notification button element
     const notificationBtn =
         document.getElementById("notificationBtn");
-
-    // Gets the notification dropdown box element
     const notificationBox =
         document.getElementById("notificationBox");
-
-    // Gets the notification list container
     const notificationList =
         document.getElementById("notificationList");
-
-    // Gets the notification count badge element
     const notificationCount =
         document.getElementById("notificationCount");
 
@@ -28,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // Shows error in console if elements are missing
         console.error("Notification elements missing");
 
-        // Stops execution
         return;
     }
 
