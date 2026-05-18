@@ -9,7 +9,6 @@ if (!$currentUserId) {
 }
 
 $message = '';
- 
 $expense = [
     'id' => '',
     'amount' => '',
@@ -35,14 +34,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ];
         $loadFromDb = false;
     } else {
-        $stmt = $pdo->prepare('UPDATE expenses SET amount = ?, date = ?, description = ? WHERE expenses_id = ? AND user_id = ?');
-        $stmt->execute([$amount, $date, $description, $recordId, $currentUserId]);
-
-        if ($stmt->rowCount() === 0) {
+        // Check if the expense exists for this user
+        $checkStmt = $pdo->prepare('SELECT 1 FROM expenses WHERE expenses_id = ? AND user_id = ?');
+        $checkStmt->execute([$recordId, $currentUserId]);
+        
+        if ($checkStmt->rowCount() === 0) {
             $message = '<div class="message error">Expense not found or permission denied.</div>';
         } else {
+            // Record exists, update it
+            $stmt = $pdo->prepare('UPDATE expenses SET amount = ?, date = ?, description = ? WHERE expenses_id = ? AND user_id = ?');
+            $stmt->execute([$amount, $date, $description, $recordId, $currentUserId]);
             $message = '<div class="message success">Expense updated successfully!</div>';
         }
+        
+        $loadFromDb = false;
+        $expense = [
+            'id' => $recordId,
+            'amount' => $amount,
+            'date' => $date,
+            'description' => $description
+        ];
     }
 } else {
     $recordId = (int) ($_GET['id'] ?? 0);
@@ -68,34 +79,34 @@ if ($loadFromDb) {
 <head>
   <meta charset="UTF-8" />
   <title>FinTrack - Edit Expenses</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="stylesheet" href="../assets/css/edit_form.css" />
 </head>
 <body>
 
   <!-- SIDEBAR -->
-  <div class="sidebar">
-
-    <div class="logo">
-      <div class="logo-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M7 4h8l4 4v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" />
-          <path d="M15 4v4h4" />
-          <path d="M9 11h6" />
-          <path d="M9 15h6" />
-        </svg>
-      </div>
-      <div class="logo-text">FinTrack</div>
+  <aside class="sidebar">
+    <div class="brand-box">
+        <span class="brand-icon" aria-hidden="true">
+            <svg class="brand-icon-svg" viewBox="0 0 24 24" fill="none">
+                <rect x="3.5" y="6.5" width="17" height="12" rx="1.8" stroke="currentColor" stroke-width="1.9"></rect>
+                <path d="M3.5 10.2H20.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path>
+            </svg>
+        </span>
+        <strong>FinTrack</strong>
     </div>
 
-    <a class="nav-link" href="dashboard.html">⊞ Dashboard</a>
-    <a class="nav-link" href="../income/add_income.php">⊕ Add Income</a>
-    <a class="nav-link" href="../expenses/add_expenses.php">⊖ Add Expenses</a>
-    <a class="nav-link" href="../goals/set_goals.php">◎ Set Goals</a>
-    <a class="nav-link" href="../goals/view_goals.php">☑ View Goals</a>
-    <a class="nav-link" href="../calendar/calendar.html">◷ Calendar</a>
-    <a class="logout" href="../auth/logout.php">↩ Log Out</a>
+    <nav class="menu">
+        <a class="menu-item active" href="dashboard.html"><i class="fas fa-tachometer-alt menu-icon"></i>Dashboard</a>
+        <a class="menu-item" href="../income/add_income.php"><i class="fas fa-plus-circle menu-icon"></i>Add Income</a>
+        <a class="menu-item" href="../expenses/add_expenses.php"><i class="fas fa-minus-circle menu-icon"></i>Add Expenses</a>
+        <a class="menu-item" href="../goals/set_goals.php"><i class="fas fa-bullseye menu-icon"></i>Set Goals</a>
+        <a class="menu-item" href="../goals/view_goals.php"><i class="fas fa-list-check menu-icon"></i>View Goals</a>
+        <a class="menu-item" href="../calendar/calendar.html"><i class="fas fa-calendar-alt menu-icon"></i>Calendar</a>
+    </nav>
 
-  </div>
+    <a class="logout-link" href="../auth/logout.php"><i class="fas fa-sign-out-alt logout-icon"></i>Log Out</a>
+  </aside>
 
   <!-- MAIN CONTENT -->
   <div class="main">
