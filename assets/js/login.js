@@ -1,87 +1,159 @@
+/* ================================
+   1. OTP HANDLING
+================================ */
 
 function setupOtpBoxes(formId, hiddenInputId) {
     var form = document.getElementById(formId);
-    if (!form) return; // page doesn't have this form, stop
+    if (!form) return;
 
     var boxes  = form.querySelectorAll('.otp-box');
     var hidden = document.getElementById(hiddenInputId);
 
     boxes.forEach(function(box, i) {
 
-        // Typed a digit → keep only numbers, jump to next box
+        // Input typing
         box.addEventListener('input', function() {
             box.value = box.value.replace(/[^0-9]/g, '').slice(-1);
             box.classList.toggle('filled', box.value !== '');
-            if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+
+            if (box.value && i < boxes.length - 1) {
+                boxes[i + 1].focus();
+            }
+
+            checkAutoSubmit();
         });
 
-        // Backspace on empty box → go back to previous box
+        // Backspace handling (fixed)
         box.addEventListener('keydown', function(e) {
-            if (e.key === 'Backspace' && !box.value && i > 0) {
-                boxes[i - 1].value = '';
-                boxes[i - 1].classList.remove('filled');
-                boxes[i - 1].focus();
+            if (e.key === 'Backspace') {
+                if (box.value) {
+                    box.value = '';
+                    box.classList.remove('filled');
+                } else if (i > 0) {
+                    boxes[i - 1].focus();
+                }
             }
         });
 
-        // Paste (e.g. "123456") → fill all boxes at once
+        // Paste handling (fixed length)
         box.addEventListener('paste', function(e) {
             e.preventDefault();
+
             var digits = (e.clipboardData || window.clipboardData)
-                         .getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                .getData('text')
+                .replace(/[^0-9]/g, '')
+                .slice(0, boxes.length);
+
             digits.split('').forEach(function(d, j) {
-                if (boxes[j]) { boxes[j].value = d; boxes[j].classList.add('filled'); }
+                if (boxes[j]) {
+                    boxes[j].value = d;
+                    boxes[j].classList.add('filled');
+                }
             });
+
             boxes[Math.min(digits.length, boxes.length - 1)].focus();
+            checkAutoSubmit();
         });
     });
 
-    // On submit → join all 6 digits into the hidden input for PHP
+    // Auto-submit when all boxes filled for verify page only
+    function checkAutoSubmit() {
+        var code = Array.from(boxes).map(b => b.value).join('');
+        if (formId === 'verifyForm' && code.length === boxes.length) {
+            if (hidden) hidden.value = code;
+            form.submit();
+        }
+    }
+
+    // Submit fallback
     form.addEventListener('submit', function() {
-        hidden.value = Array.from(boxes).map(function(b) { return b.value; }).join('');
+        if (hidden) {
+            hidden.value = Array.from(boxes).map(b => b.value).join('');
+        }
     });
 }
 
+// Init
 setupOtpBoxes('verifyForm', 'verifyHiddenCode');
 setupOtpBoxes('resetForm',  'resetHiddenCode');
 
 
-/* --- 2. FORM VALIDATION ---
-   Stops the form and shows an alert if something is wrong. */
+/* ================================
+   2. FORM VALIDATION
+================================ */
 
-// Login form
+// Login
 var loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.addEventListener('submit', function(e) {
         var email = document.getElementById('email').value.trim();
         var pass  = document.getElementById('password').value;
 
-        if (!email || !pass)                               { e.preventDefault(); alert('Please fill in all fields.'); return; }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))    { e.preventDefault(); alert('Please enter a valid email.'); return; }
-        if (pass.length < 6)                               { e.preventDefault(); alert('Password must be at least 6 characters.'); return; }
+        if (!email || !pass) {
+            e.preventDefault();
+            alert('Please fill in all fields.');
+            return;
+        }
 
-        // All good – show spinner
-        document.getElementById('loginBtn').disabled = true;
-        document.getElementById('spinner').style.display = 'inline-block';
-        document.getElementById('btnText').textContent = 'LOGGING IN…';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            e.preventDefault();
+            alert('Please enter a valid email.');
+            return;
+        }
+
+        if (pass.length < 6) {
+            e.preventDefault();
+            alert('Password must be at least 6 characters.');
+            return;
+        }
+
+        // Spinner
+        var btn = document.getElementById('loginBtn');
+        var spinner = document.getElementById('spinner');
+        var text = document.getElementById('btnText');
+
+        if (btn && spinner && text) {
+            btn.disabled = true;
+            spinner.style.display = 'inline-block';
+            text.textContent = 'LOGGING IN…';
+
+            // Safety fallback (prevents stuck button)
+            setTimeout(function() {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                text.textContent = 'LOGIN';
+            }, 5000);
+        }
     });
 }
 
-// Reset password form (only checks the password fields – OTP is checked by PHP)
+// Reset password
 var resetForm = document.getElementById('resetForm');
 if (resetForm) {
     resetForm.addEventListener('submit', function(e) {
         var newpass = document.getElementById('new_password').value;
         var confirm = document.getElementById('confirm').value;
-        if (newpass.length < 6)    { e.preventDefault(); alert('Password must be at least 6 characters.'); return; }
-        if (newpass !== confirm)   { e.preventDefault(); alert('Passwords do not match.'); return; }
+
+        if (newpass.length < 6) {
+            e.preventDefault();
+            alert('Password must be at least 6 characters.');
+            return;
+        }
+
+        if (newpass !== confirm) {
+            e.preventDefault();
+            alert('Passwords do not match.');
+            return;
+        }
     });
 }
 
 
-/* --- 3. UI EFFECTS --- */
+/* ================================
+   3. UI EFFECTS
+================================ */
 
-// Toggle password visibility (●●● ↔ plain text)
+// Toggle password visibility
 function togglePw(id) {
     var input = document.getElementById(id);
     var svg   = document.getElementById('eye_' + id);
@@ -90,73 +162,23 @@ function togglePw(id) {
     var isHidden = input.type === 'password';
     input.type = isHidden ? 'text' : 'password';
 
-    // Swap icon: crossed-eye when visible, normal eye when hidden
-    // Clear existing content
-    while (svg.firstChild) {
-        svg.removeChild(svg.firstChild);
-    }
-
-    if (isHidden) {
-        // Show crossed-eye icon (for when password is now visible)
-        var path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path1.setAttribute('d', 'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94');
-        path1.setAttribute('stroke', '#b5acd4');
-        path1.setAttribute('stroke-width', '1.6');
-        path1.setAttribute('stroke-linecap', 'round');
-        path1.setAttribute('stroke-linejoin', 'round');
-        path1.setAttribute('fill', 'none');
-        svg.appendChild(path1);
-
-        var path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path2.setAttribute('d', 'M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19');
-        path2.setAttribute('stroke', '#b5acd4');
-        path2.setAttribute('stroke-width', '1.6');
-        path2.setAttribute('stroke-linecap', 'round');
-        path2.setAttribute('stroke-linejoin', 'round');
-        path2.setAttribute('fill', 'none');
-        svg.appendChild(path2);
-
-        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', '1');
-        line.setAttribute('y1', '1');
-        line.setAttribute('x2', '23');
-        line.setAttribute('y2', '23');
-        line.setAttribute('stroke', '#b5acd4');
-        line.setAttribute('stroke-width', '1.6');
-        line.setAttribute('stroke-linecap', 'round');
-        line.setAttribute('stroke-linejoin', 'round');
-        svg.appendChild(line);
-    } else {
-        // Show normal eye icon (for when password is hidden again)
-        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z');
-        path.setAttribute('stroke', '#b5acd4');
-        path.setAttribute('stroke-width', '1.6');
-        path.setAttribute('stroke-linecap', 'round');
-        path.setAttribute('stroke-linejoin', 'round');
-        path.setAttribute('fill', 'none');
-        svg.appendChild(path);
-
-        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', '12');
-        circle.setAttribute('cy', '12');
-        circle.setAttribute('r', '3');
-        circle.setAttribute('stroke', '#b5acd4');
-        circle.setAttribute('stroke-width', '1.6');
-        circle.setAttribute('fill', 'none');
-        svg.appendChild(circle);
-    }
+    svg.innerHTML = isHidden
+        ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="#b5acd4" stroke-width="1.6" fill="none"/>
+           <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="#b5acd4" stroke-width="1.6" fill="none"/>
+           <line x1="1" y1="1" x2="23" y2="23" stroke="#b5acd4" stroke-width="1.6"/>`
+        : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#b5acd4" stroke-width="1.6" fill="none"/>
+           <circle cx="12" cy="12" r="3" stroke="#b5acd4" stroke-width="1.6" fill="none"/>`;
 }
 
-// Logout: 1st click = ask "confirm?", 2nd click = actually log out
+
+// Logout confirm
 function confirmLogout(event, btn) {
     event.preventDefault();
-    var original = btn.textContent;
 
-    btn.textContent      = '⚠️ Confirm logout?';
+    var original = btn.textContent;
+    btn.textContent = '⚠️ Confirm logout?';
     btn.style.background = 'linear-gradient(135deg,#e05a5a,#c0392b)';
 
-    // Click anywhere else → cancel
     function cancel(e) {
         if (!btn.contains(e.target)) {
             btn.textContent = original;
@@ -164,9 +186,11 @@ function confirmLogout(event, btn) {
             document.removeEventListener('click', cancel);
         }
     }
-    setTimeout(function() { document.addEventListener('click', cancel); }, 50);
 
-    // Click the button again → go to logout URL
+    setTimeout(function() {
+        document.addEventListener('click', cancel);
+    }, 50);
+
     btn.addEventListener('click', function go(e) {
         e.preventDefault();
         btn.textContent = 'Logging out…';
@@ -178,8 +202,21 @@ function confirmLogout(event, btn) {
     return false;
 }
 
-// Fade-in animation: each form element slides up one by one on page load
-document.querySelectorAll('.field, .forgot, .btn, .bottom-link, .sub').forEach(function(el, i) {
-    el.style.cssText = 'opacity:0; transform:translateY(10px); transition:opacity .35s ease ' + (i*.06) + 's, transform .35s ease ' + (i*.06) + 's';
-    requestAnimationFrame(function() { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+
+/* ================================
+   4. PAGE ANIMATIONS
+================================ */
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.field, .forgot, .btn, .bottom-link, .sub')
+        .forEach(function(el, i) {
+            el.style.cssText =
+                'opacity:0; transform:translateY(10px); transition:opacity .35s ease ' +
+                (i * .06) + 's, transform .35s ease ' + (i * .06) + 's';
+
+            requestAnimationFrame(function() {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            });
+        });
 });

@@ -1,137 +1,239 @@
-<?php
-$host    = 'localhost';       
-$dbname  = 'expenses_db';   
-$db_user = 'root';           
-$db_pass = '';               
-
-// Try to connect. If it fails, stop and show an error.
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $db_user, $db_pass, [
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ]);
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database connection failed.']);
-    exit;
-}
-
-// CHECK IF USER IS LOGGED IN
-// We get the logged-in user's ID from the session.
-// If no one is logged in, stop here.
+﻿<?php
+require_once __DIR__ . '/../config/db.php';
 session_start();
 
-$current_user_id = $_SESSION['user_id'] ?? 0; // 0 means no one is logged in
-
+$current_user_id = $_SESSION['user_id'] ?? 0;
 if (!$current_user_id) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Unauthorized. Please log in.']);
+    header('Location: ../auth/login.php');
     exit;
 }
 
-// THE DELETE FUNCTION
-function deleteRecord(PDO $pdo, int $record_id, int $user_id): array
+function getRecord(PDO $pdo, string $type, int $id, int $user_id): ?array
 {
-    // Make sure the record ID is a positive number
-    if ($record_id <= 0) {
-        return ['success' => false, 'message' => 'Invalid record ID.'];
+    if ($id <= 0) {
+        return null;
     }
 
-    // Look for the record in the database
-    $stmt = $pdo->prepare("SELECT id, user_id, type, description, amount FROM records WHERE id = ?");
-    $stmt->execute([$record_id]);
-    $record = $stmt->fetch();
-
-    // If no record was found, stop
-    if (!$record) {
-        return ['success' => false, 'message' => 'Record not found.'];
+    if ($type === 'income') {
+        $stmt = $pdo->prepare('SELECT income_id AS id, COALESCE(description, "") AS description, source, amount, date FROM income WHERE income_id = ? AND user_id = ?');
+    } elseif ($type === 'expense') {
+        $stmt = $pdo->prepare('SELECT expenses_id AS id, COALESCE(description, "") AS description, amount, date FROM expenses WHERE expenses_id = ? AND user_id = ?');
+    } elseif ($type === 'goal') {
+        $stmt = $pdo->prepare('SELECT goal_id AS id, goal_name AS name, required_amount AS amount, start_date, due_date FROM savings_goals WHERE goal_id = ? AND user_id = ?');
+    } else {
+        return null;
     }
 
-    // If the record belongs to someone else, stop
-    if ((int)$record['user_id'] !== $user_id) {
-        return ['success' => false, 'message' => 'Permission denied. You can only delete your own records.'];
-    }
-
-    // All checks passed → delete the record
-    $del = $pdo->prepare("DELETE FROM records WHERE id = ? AND user_id = ?");
-    $del->execute([$record_id, $user_id]);
-
-    return ['success' => true, 'message' => 'Record deleted successfully.'];
+    $stmt->execute([$id, $user_id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
-// SHOW CONFIRMATION PAGE
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['record_id'])) {
+function deleteRecord(PDO $pdo, string $type, int $id, int $user_id): bool
+{
+    if ($type === 'income') {
+        $stmt = $pdo->prepare('DELETE FROM income WHERE income_id = ? AND user_id = ?');
+    } elseif ($type === 'expense') {
+        $stmt = $pdo->prepare('DELETE FROM expenses WHERE expenses_id = ? AND user_id = ?');
+    } elseif ($type === 'goal') {
+        $stmt = $pdo->prepare('DELETE FROM savings_goals WHERE goal_id = ? AND user_id = ?');
+    } else {
+        return false;
+    }
 
-    $record_id = (int)$_GET['record_id'];
+    $stmt->execute([$id, $user_id]);
+    return $stmt->rowCount() > 0;
+}
 
-    // Get the record from the database to display its details
-    $stmt = $pdo->prepare("SELECT id, user_id, type, description, amount FROM records WHERE id = ?");
-    $stmt->execute([$record_id]);
-    $record = $stmt->fetch();
+$allowedTypes = ['income', 'expense', 'goal'];
 
-    // Record doesn't exist? Stop.
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $recordId = (int) ($_GET['id'] ?? 0);
+    $recordType = $_GET['type'] ?? '';
+
+    if ($recordId <= 0 || !in_array($recordType, $allowedTypes, true)) {
+        die('Invalid delete request.');
+    }
+
+    $record = getRecord($pdo, $recordType, $recordId, $current_user_id);
     if (!$record) {
         die('Record not found.');
     }
 
-    // Record belongs to someone else? Stop.
-    if ((int)$record['user_id'] !== $current_user_id) {
-        die('Permission denied. You can only delete your own records.');
+    $recordLabel = $recordType === 'income' ? 'Income' : ($recordType === 'expense' ? 'Expense' : 'Goal');
+    if ($recordType === 'goal') {
+        $recordDescription = $record['name'];
+        $startDateFormatted = date('m/d/Y', strtotime($record['start_date']));
+        $dueDateFormatted = date('m/d/Y', strtotime($record['due_date']));
+    } else {
+        $recordDescription = $recordType === 'income' ? ($record['description'] !== '' ? $record['description'] : $record['source']) : $record['description'];
+        $dateFormatted = !empty($record['date']) ? date('m/d/Y', strtotime($record['date'])) : 'N/A';
     }
-
-    // Show the confirmation page with record details
     ?>
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Confirm Delete</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FinTrack - Delete <?= htmlspecialchars($recordLabel) ?></title>
+        <link rel="stylesheet" href="../assets/css/delete_form.css">
     </head>
     <body>
-        <h2>Are you sure you want to delete this record?</h2>
-        <p><strong>Type:</strong> <?= htmlspecialchars(ucfirst($record['type'])) ?></p>
-        <p><strong>Description:</strong> <?= htmlspecialchars($record['description']) ?></p>
-        <p><strong>Amount:</strong> $<?= number_format($record['amount'], 2) ?></p>
 
-        <!-- If user clicks "Yes, Delete" → form submits as POST to trigger actual deletion -->
-        <!-- If user clicks "Cancel" → goes back to the previous page -->
-        <form method="POST" action="delete.php">
-            <input type="hidden" name="record_id" value="<?= $record['id'] ?>">
-            <input type="hidden" name="confirmed" value="yes"> <!-- proof that user confirmed -->
-            <button type="submit">Yes, Delete</button>
-            <a href="javascript:history.back()">Cancel</a>
-        </form>
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 4h8l4 4v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" />
+                        <path d="M15 4v4h4" />
+                        <path d="M9 11h6" />
+                        <path d="M9 15h6" />
+                    </svg>
+                </div>
+                <div class="logo-text">FinTrack</div>
+            </div>
+
+            <a class="nav-link" href="dashboard.html">⊞ Dashboard</a>
+            <a class="nav-link" href="../income/add_income.php">⊕ Add Income</a>
+            <a class="nav-link" href="../expenses/add_expenses.php">⊖ Add Expenses</a>
+            <a class="nav-link" href="../goals/set_goals.php">◎ Set Goals</a>
+            <a class="nav-link" href="../goals/view_goals.php">☑ View Goals</a>
+            <a class="nav-link" href="../calendar/calendar.html">◷ Calendar</a>
+            <a class="logout" href="../auth/logout.php">↩ Log Out</a>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main">
+            <div class="card">
+                <h1>DELETE <?= htmlspecialchars(strtoupper($recordLabel)) ?></h1>
+                <p class="subtitle">Review and delete this <?= htmlspecialchars(strtolower($recordLabel)) ?> entry</p>
+
+                <div class="warning-message">
+                    <div class="warning-icon">⚠</div>
+                    <div class="warning-content">
+                        <h3>Are you sure you want to delete this?</h3>
+                        <p>This action cannot be undone. The <?= htmlspecialchars($recordLabel) ?> entry will be permanently removed from your records.</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="delete.php" id="deleteForm">
+                    <input type="hidden" name="id" value="<?= $record['id'] ?>">
+                    <input type="hidden" name="type" value="<?= htmlspecialchars($recordType) ?>">
+                    <input type="hidden" name="confirmed" value="yes">
+
+                    <?php if ($recordType === 'goal'): ?>
+                        <label>Goal Name:</label>
+                        <div class="field-value"><?= htmlspecialchars($recordDescription) ?></div>
+
+                        <label>Target Amount:</label>
+                        <div class="field-value">Rs.<?= number_format((float) $record['amount'], 2) ?></div>
+
+                        <label>Start Date:</label>
+                        <div class="field-value"><?= htmlspecialchars($startDateFormatted) ?></div>
+
+                        <label>Due Date:</label>
+                        <div class="field-value"><?= htmlspecialchars($dueDateFormatted) ?></div>
+                    <?php else: ?>
+                        <label><?= htmlspecialchars($recordLabel) ?> Amount:</label>
+                        <div class="field-value">$<?= number_format((float) $record['amount'], 2) ?></div>
+
+                        <?php if ($recordType === 'income'): ?>
+                            <label>Source:</label>
+                            <div class="field-value"><?= htmlspecialchars($record['source']) ?></div>
+                        <?php endif; ?>
+
+                        <label>Date:</label>
+                        <div class="field-value"><?= htmlspecialchars($dateFormatted) ?></div>
+
+                        <label>Description:</label>
+                        <div class="field-value"><?= htmlspecialchars($recordDescription !== '' ? $recordDescription : '(No description)') ?></div>
+                    <?php endif; ?>
+
+                    <div class="btn-row">
+                        <button type="button" class="btn btn-cancel" onclick="history.back()">CANCEL</button>
+                        <button type="submit" class="btn btn-delete">DELETE <?= htmlspecialchars(strtoupper($recordLabel)) ?></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </body>
     </html>
     <?php
     exit;
 }
 
-// ACTUALLY DELETE THE RECORD
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $recordId = (int) ($_POST['id'] ?? 0);
+    $recordType = $_POST['type'] ?? '';
+    $confirmed = $_POST['confirmed'] ?? '';
 
-    header('Content-Type: application/json');
-
-    // If somehow confirmed=yes is missing, reject the request
-    // (prevents accidental or malicious direct POST calls)
-    if (($_POST['confirmed'] ?? '') !== 'yes') {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Deletion not confirmed.']);
-        exit;
+    if ($recordId <= 0 || !in_array($recordType, $allowedTypes, true) || $confirmed !== 'yes') {
+        die('Invalid delete request.');
     }
 
-    // Get the record ID from the form
-    $record_id = (int)($_POST['record_id'] ?? 0);
+    $deleted = deleteRecord($pdo, $recordType, $recordId, $current_user_id);
+    if (!$deleted) {
+        die('Unable to delete record. It may not exist or may belong to another user.');
+    }
 
-    // Run the delete function and return the result as JSON
-    $result = deleteRecord($pdo, $record_id, $current_user_id);
+    // Set label for success message and redirect path
+    $recordLabel = $recordType === 'income' ? 'Income' : ($recordType === 'expense' ? 'Expense' : 'Goal');
+    $redirectPath = $recordType === 'goal' ? '../goals/view_goals.php' : 'dashboard.html';
 
-    http_response_code($result['success'] ? 200 : 403);
-    echo json_encode($result);
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FinTrack - Record Deleted</title>
+        <link rel="stylesheet" href="../assets/css/delete_form.css">
+    </head>
+    <body>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 4h8l4 4v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" />
+                        <path d="M15 4v4h4" />
+                        <path d="M9 11h6" />
+                        <path d="M9 15h6" />
+                    </svg>
+                </div>
+                <div class="logo-text">FinTrack</div>
+            </div>
+
+            <a class="nav-link" href="dashboard.html">⊞ Dashboard</a>
+            <a class="nav-link" href="../income/add_income.php">⊕ Add Income</a>
+            <a class="nav-link" href="../expenses/add_expenses.php">⊖ Add Expenses</a>
+            <a class="nav-link" href="../goals/set_goals.php">◎ Set Goals</a>
+            <a class="nav-link" href="../goals/view_goals.php">☑ View Goals</a>
+            <a class="nav-link" href="../calendar/calendar.html">◷ Calendar</a>
+            <a class="logout" href="../auth/logout.php">↩ Log Out</a>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main">
+            <!-- SUCCESS MODAL -->
+            <div class="modal-overlay show">
+                <div class="success-modal">
+                    <div class="success-icon">✓</div>
+                    <h2>Success!</h2>
+                    <p><?= htmlspecialchars($recordLabel) ?> entry has been deleted successfully.</p>
+                    <a href="<?= $redirectPath ?>" class="btn-back">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+
+    </body>
+    </html>
+    <?php
     exit;
 }
 
-// FALLBACK: Wrong request method (not GET or POST)
 http_response_code(405);
-echo json_encode(['success' => false, 'message' => 'Method not allowed.']);
+echo 'Method not allowed.';
 exit;
