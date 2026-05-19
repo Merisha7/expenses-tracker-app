@@ -143,8 +143,12 @@ $due_date_value = date('m/d/Y', strtotime($goal['due_date']));
                         <label for="due-date">Due Date:</label>
                         <input type="text" id="due-date" name="due_date" placeholder="mm/dd/yyyy" inputmode="numeric" maxlength="10" oninput="formatDateInput(this)" pattern="^\d{2}/\d{2}/\d{4}$" title="Enter date in mm/dd/yyyy format" required value="<?php echo htmlspecialchars($due_date_value); ?>">
                     </div>
+<<<<<<< HEAD
                     <div class="form-group button-group">
                         <button type="button" class="cancel-goal-btn" onclick="window.location.href='view_goals.php'">CANCEL</button>
+=======
+                    <div class="form-group">
+>>>>>>> c9ee62e2f1c7dec7c07c8de044c583651a65f55e
                         <button type="submit" class="save-goal-btn">EDIT GOAL</button>
                     </div>
                 </form>

@@ -1,0 +1,118 @@
+/* reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* background */
+body {
+    height: 100vh;
+    background-color: #f7f6fb;
+}
+
+/* center layout */
+.wrapper {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* card */
+.card {
+    width: 420px;
+    padding: 45px 35px;
+    background: white;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+}
+
+/* icon box */
+.icon-box {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(to right, #7b5ce6, #9b7df5);
+    border-radius: 16px;
+    margin: 0 auto 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(123, 92, 230, 0.4);
+}
+
+/* icon */
+.main-icon {
+    width: 30px;
+    height: 30px;
+    stroke-width: 1.8;
+}
+
+/* title */
+h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* text */
+.subtitle {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.tagline {
+    font-size: 13px;
+    color: #9b7df5;
+    font-style: italic;
+    margin-bottom: 30px;
+}
+
+/* buttons */
+.btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    margin-bottom: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* login button */
+.btn-login {
+    background: linear-gradient(to right, #7b5ce6, #9b7df5);
+    color: white;
+}
+
+/* register button */
+.btn-register {
+    background: transparent;
+    border: 1.5px solid #d6ccff;
+    color: #7b5ce6;
+}
+
+/* button icon */
+.btn-icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+/* responsive */
+@media (max-width: 480px) {
+    .card {
+        width: 90%;
+        padding: 30px 20px;
+    }
+}

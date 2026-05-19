@@ -1,0 +1,136 @@
+/* =============================================
+   verify_email.css — extra styles for
+   verify_email.php (layered on top of register.css)
+   ============================================= */
+
+/* ---- Back arrow link ---- */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    color: #7c5cbf;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: opacity 0.2s;
+}
+
+.back-link:hover {
+    opacity: 0.7;
+}
+
+/* ---- "VERIFY EMAIL" heading ---- */
+.verify-title {
+    text-align: center;
+    color: #2d2060;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+}
+
+/* ---- Purple mail icon box ---- */
+.mail-icon-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.mail-icon-box {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #9b7fd4, #7c5cbf);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 18px rgba(124, 92, 191, 0.30);
+}
+
+/* ---- "We've sent a code to your email" ---- */
+.verify-subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+
+.verify-subtitle span {
+    color: #7c5cbf;
+    font-weight: bold;
+}
+
+/* ---- Countdown timer ---- */
+.timer-text {
+    text-align: center;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+.timer-text #countdown {
+    font-weight: bold;
+    color: #7c5cbf;
+}
+
+.timer-text.expired {
+    color: #c62828;
+    font-weight: bold;
+}
+
+/* ---- 6-digit code row ---- */
+.code-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+/* Individual digit box */
+.code-box {
+    width: 48px !important;
+    height: 54px;
+    padding: 0 !important;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: #2d2060;
+    background: #f5f2fd;
+    border: 1.5px solid #e8e1f7;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.code-box:focus {
+    border-color: #7c5cbf;
+    background: #ede8fb;
+}
+
+/* ---- "Didn't receive the code?" row ---- */
+.resend-row {
+    text-align: center;
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 16px;
+}
+
+/* Resend button — looks like a link */
+.resend-row button,
+.resend-btn {
+    background: none !important;
+    border: none !important;
+    color: #7c5cbf !important;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0 !important;
+    width: auto !important;
+    margin-top: 0 !important;
+    letter-spacing: 0;
+}
+
+.resend-row button:hover,
+.resend-btn:hover {
+    text-decoration: underline;
+    background: none !important;
+}
