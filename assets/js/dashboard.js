@@ -1,6 +1,6 @@
-// Format numbers like 1200 -> $1,200.00
+// Format numbers like 1200 -> Rs. 1,200.00
 function formatCurrency(value) {
-    return `$${Number(value).toLocaleString(undefined, {
+    return `Rs. ${Number(value).toLocaleString(undefined, {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
     })}`;
@@ -51,6 +51,10 @@ function renderActivity(rows) {
         const cls = item.type === 'income' ? 'amount-income' : 'amount-expense';
         const statusCls = item.type === 'income' ? 'status-income' : 'status-expense';
         const statusLabel = item.type === 'income' ? 'INCOME' : 'EXPENSE';
+        const editPath = item.type === 'income'
+            ? 'edit_income.php'
+            : 'edit_expenses.php';
+        const deletePath = 'delete.php';
         
         // Get icon based on description
         const descLower = item.description.toLowerCase();
@@ -68,8 +72,8 @@ function renderActivity(rows) {
             <td class="${cls}">${sign}${formatCurrency(item.amount)}</td>
             <td><span class="status-pill ${statusCls}">${statusLabel}</span></td>
             <td>
-                <a class="btn btn-edit" href="../edit.php?id=${item.id}">Edit</a>
-                <a class="btn btn-delete" href="../delete.php?id=${item.id}">Del</a>
+                <a class="btn btn-edit" href="${editPath}?id=${item.id}">Edit</a>
+                <a class="btn btn-delete" href="${deletePath}?type=${item.type}&id=${item.id}">Del</a>
             </td>
         `;
         body.appendChild(tr);
@@ -139,8 +143,8 @@ function renderChart(chartData) {
                     },
                     ticks: {
                         callback: (value) => {
-                            if (value >= 1000) return `$${value / 1000}k`;
-                            return `$${value}`;
+                            if (value >= 1000) return `Rs. ${value / 1000}k`;
+                            return `Rs. ${value}`;
                         }
                     }
                 }
@@ -154,8 +158,22 @@ async function loadDashboard() {
     const hello = document.getElementById('helloTitle');
 
     try {
-        const response = await fetch('dashboard.php', { cache: 'no-store' });
+        const response = await fetch(`dashboard.php?ts=${Date.now()}`, { cache: 'no-store' });
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('Dashboard API error', response.status, text);
+            hello.textContent = 'Dashboard data failed to load (server error)';
+            return;
+        }
+
         const data = await response.json();
+
+        if (!data || data.success === false) {
+            console.error('Dashboard API returned error:', data);
+            hello.textContent = 'Dashboard data failed to load (invalid response)';
+            return;
+        }
 
         hello.textContent = `HELLO, ${String(data.userName || 'USER').toUpperCase()}!`;
         setText('userAvatar', String(data.userName || 'U').trim().charAt(0).toUpperCase() || 'U');
@@ -168,10 +186,32 @@ async function loadDashboard() {
 
         renderActivity(data.recentActivity);
         renderChart(data.chart);
+        
+        // Render goals if goalsHtml is provided
+        if (data.goalsHtml) {
+            const goalsContainer = document.getElementById('goalsContainer');
+            if (goalsContainer) {
+                goalsContainer.innerHTML = data.goalsHtml;
+            }
+        }
     } catch (error) {
-        hello.textContent = 'Dashboard data failed to load';
+        console.error('Dashboard load failed', error);
+        hello.textContent = 'Dashboard data failed to load (network/error)';
     }
 }
 
 // Run after HTML is ready.
 document.addEventListener('DOMContentLoaded', loadDashboard);
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        loadDashboard();
+    }
+});
+
+// Listen for goals updates from other pages (localStorage) and reload dashboard
+window.addEventListener('storage', (e) => {
+    if (!e) return;
+    if (e.key === 'goals-updated') {
+        loadDashboard();
+    }
+});
