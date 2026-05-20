@@ -85,4 +85,4 @@
 </body>
 </html>
 
-/* final version of index.php for the Expenses Tracking app. This file serves as the landing page, providing users with an introduction to the app and options to log in or register. The design is clean and modern, with a focus on user experience */
+<!-- Final updated version -->
