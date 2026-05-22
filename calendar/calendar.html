@@ -11,79 +11,111 @@
 <body>
 
 <div class="main">
+<!-- Sidebar Navigation -->
+    <aside class="sidebar">
 
-    <div class="sidebar">
+        <div class="brand-box">
+            <span class="brand-icon" aria-hidden="true">
+                <svg class="brand-icon-svg" viewBox="0 0 24 24" fill="none">
+                    <path d="M8 4.75h6.1L18.25 8.9V19a1.25 1.25 0 0 1-1.25 1.25H8A1.25 1.25 0 0 1 6.75 19V6A1.25 1.25 0 0 1 8 4.75Z"
+                        stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
 
-        <div class="logo">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-width="2" d="M3 7h18v13H3zM16 3H5a2 2 0 00-2 2v2h18V5a2 2 0 00-2-2z"/>
-            </svg>
-            FinTrack
+                    <path d="M14 4.75V9h4.25"
+                        stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+
+                    <path d="M9.75 13h5.5M9.75 16h5.5"
+                        stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                </svg>
+            </span>
+
+            <strong>FinTrack</strong>
         </div>
 
-        <a href="../dashboard/dashboard.html">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-width="2" d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"/>
-            </svg>
-            Dashboard
-        </a>
+        <nav class="menu">
 
-        <a href="../income/add_income.php">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-width="2" d="M12 5v14M5 12h14"/>
-            </svg>
-            Add Income
-        </a>
+            <!-- Dashboard -->
+            <a class="menu-item" href="../dashboard/dashboard.html">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 13h7V4H4v9zm9 7h7v-9h-7v9zM13 4v7h7V4h-7zM4 20h7v-4H4v4z"
+                        stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+                Dashboard
+            </a>
 
-        <a href="../expenses/add_expenses.php">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-width="2" d="M5 12h14"/>
-            </svg>
-            Add Expenses
-        </a>
+            <!-- Add Income -->
+            <a class="menu-item" href="../income/add_income.php">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5v14M5 12h14"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Add Income
+            </a>
 
-        <a href="../goals/set_goals.php">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="9" stroke-width="2"/>
-                <circle cx="12" cy="12" r="4" stroke-width="2"/>
-            </svg>
-            Set Goals
-        </a>
+            <!-- Add Expenses -->
+            <a class="menu-item" href="../expenses/add_expenses.php">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h14"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                Add Expenses
+            </a>
 
-        <a href="../goals/view_goals.php">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-        <!-- check marks -->
-                <path stroke-width="2" d="M5 6l2 2 4-4"/>
-                <path stroke-width="2" d="M5 12l2 2 4-4"/>
-                <path stroke-width="2" d="M5 18l2 2 4-4"/>
-        
-        <!-- lines -->
-                <path stroke-width="2" d="M11 6h8"/>
-                <path stroke-width="2" d="M11 12h8"/>
-                <path stroke-width="2" d="M11 18h8"/>
-            </svg>
-            View Goals
-        </a>
+            <!-- Set Goals -->
+            <a class="menu-item" href="../goals/set_goals.php">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="8.5"
+                        stroke="currentColor" stroke-width="1.8"/>
+                    <circle cx="12" cy="12" r="3.5"
+                        stroke="currentColor" stroke-width="1.8"/>
+                </svg>
+                Set Goals
+            </a>
 
-        <a href="calendar.html" class="active">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-width="2" d="M3 8h18M8 3v5M16 3v5M3 8v13h18V8"/>
-            </svg>
-            Calendar
-        </a>
+            <!-- View Goals -->
+            <a class="menu-item" href="../goals/view_goals.php">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 6h11M9 12h11M9 18h11"
+                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
 
-        <a href="../auth/logout.php" class="logout">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-width="2" d="M15 12H3m6-6l-6 6 6 6M21 3v18"/>
+                    <path d="M5.5 6.5l1.2 1.2L8.8 5.6M5.5 12.5l1.2 1.2L8.8 11.6M5.5 18.5l1.2 1.2L8.8 17.6"
+                        stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                View Goals
+            </a>
+
+            <!-- Calendar -->
+            <a class="menu-item active" href="calendar.html">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
+                    <path d="M3.5 8.5h17M7.5 3.5v5M16.5 3.5v5M5 5.5h14A1.5 1.5 0 0 1 20.5 7v11A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18V7A1.5 1.5 0 0 1 5 5.5Z"
+                        stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Calendar
+            </a>
+
+        </nav>
+
+        <!-- Logout -->
+        <a class="logout-link" href="../auth/logout.php">
+            <svg class="logout-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M14 7V5.5A1.5 1.5 0 0 0 12.5 4h-6A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20h6A1.5 1.5 0 0 0 14 18.5V17"
+                    stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+
+                <path d="M10 12h9m-3-3 3 3-3 3"
+                    stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+
             Log Out
         </a>
 
-    </div>
+    </aside>
 
     <div class="content">
         <h1>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg class="page-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-width="2" d="M3 8h18M8 3v5M16 3v5M3 8v13h18V8"/>
             </svg>
             CALENDAR

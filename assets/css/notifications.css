@@ -1,36 +1,38 @@
 .notification-wrapper {
-    position: fixed;
-    top: 20px;
-    right: 110px;
-    z-index: 2147483647;
+    /* position inside topbar-actions so it aligns with avatar and doesn't overlap */
+    position: absolute;
+    top: 50%;
+    right: 72px;
+    transform: translateY(-50%);
+    z-index: 9999;
     font-family: Arial, sans-serif;
 }
 
 .notification-btn {
-    width: 50px;
-    height: 50px;
+    width: 42px;
+    height: 42px;
     border: none;
     border-radius: 50%;
-    background: #7c5cff;
+    background: linear-gradient(180deg, #9f85e7, #8a68d7);
     color: white;
-    font-size: 22px;
+    font-size: 20px;
     cursor: pointer;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 14px rgba(141, 108, 212, 0.25);
 }
 
 .notification-count {
     position: absolute;
     top: -5px;
     right: -5px;
-    background: red;
+    background: #ff4d4d;
     color: white;
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    font-size: 12px;
+    font-size: 11px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -43,11 +45,11 @@
     border-radius: 16px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
     position: absolute;
-    top: 60px;
+    top: 50px;
     right: 0;
     display: none;
     overflow-y: auto;
-    z-index: 2147483646;
+    z-index: 9998;
 }
 
 .notification-header {

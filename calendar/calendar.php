@@ -1,6 +1,6 @@
 <?php
 
-session_start()
+session_start();
 include '../config/db.php';
 
 // Sets the response format as JSON

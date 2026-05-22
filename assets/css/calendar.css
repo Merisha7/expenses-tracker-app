@@ -44,19 +44,12 @@
     font-size: 13px;
 }
 
-.page-title {
-    display: flex;
-    align-items: center;  
-    gap: 8px;              
-}
-
-.page-title h1 {
-    margin: 0;             
-}
-
-.page-title .icon {
+.page-icon {
     width: 24px;
     height: 24px;
+
+    vertical-align: middle;
+    margin-right: 8px;
 }
 
 /* overlay background */
