@@ -1,0 +1,276 @@
+h1 {
+    font-size: 32px;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #777;
+    margin-bottom: 25px;
+}
+
+/* GOAL CARD */
+/* CENTER + LIMIT WIDTH */
+.goal-card {
+    background: #ebe7f5;
+    padding: 25px;
+    border-radius: 15px;
+
+    max-width: 1100px;   
+    width: 100%;
+    margin: 0 auto;      
+}
+
+/* ICONS */
+.icons {
+    display: flex;
+    gap: 12px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* SVG BUTTON STYLE */
+.icon-btn {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    color: #6b6688;
+    transition: 0.2s;
+}
+
+/* HOVER EFFECT */
+.icon-btn:hover {
+    color: #7b5cff;
+}
+
+/* DELETE HOVER (RED) */
+.icon-btn.delete:hover {
+    color: #ff4d4d;
+}
+
+/* TOP */
+.goal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.goal-top h2 {
+    margin: 0;
+}
+
+.date {
+    color: #777;
+    font-size: 14px;
+}
+
+.icons {
+    /* kept for specificity in case of overrides */
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* PROGRESS */
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #dcdcdc;
+    border-radius: 10px;
+    margin: 8px 0 20px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #7b5cff;
+    border-radius: 10px;
+}
+
+/* STATS */
+.stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.box {
+    flex: 1;
+    padding: 15px;
+    border-radius: 10px;
+    color: #000;
+}
+
+.box p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.box h3 {
+    margin: 5px 0 0;
+}
+
+/* COLORS */
+.green {
+    background: #9be39f;
+}
+
+.purple {
+    background: #c7b3ff;
+}
+
+.red {
+    background: #ff9c9c;
+}
+
+/* BOTTOM SECTION */
+.bottom {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+/* BUDGET */
+.budget {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* CHECKBOX */
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #7b5cff;
+    cursor: pointer;
+}
+
+.checkbox input {
+    width: 14px;
+    height: 14px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .stats {
+        flex-direction: column;
+    }
+}
+
+.content {
+    overflow-x: hidden;
+}
+
+.goal-card {
+    box-sizing: border-box;
+}
+
+/* Completed goal styling */
+.goal-card.goal-completed {
+    background: linear-gradient(135deg, #eaf9ef 0%, #eef7fb 100%);
+    border: 1px solid #d6f0dd;
+    box-shadow: 0 6px 18px rgba(72, 180, 97, 0.06);
+}
+
+.goal-card + .goal-card {
+    margin-top: 18px;
+}
+
+.goal-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.goal-status-complete {
+    background: #dff6e5;
+    color: #1f7a39;
+    border: 1px solid #bfe8ca;
+}
+
+/* Hide checkbox on completed card (we show restore button instead) */
+.goal-card.goal-completed .checkbox {
+    display: none;
+}
+
+.goal-card.goal-completed .budget {
+    color: #1f7a39;
+    font-weight: 700;
+}
+
+/* Notification (toast) styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    z-index: 99999;
+    max-width: 480px;
+}
+
+.notification-success {
+    background: #e6f9ed;
+    color: #1f7a39;
+    border: 1px solid #cfeed1;
+}
+
+.notification-info {
+    background: #e8f0ff;
+    color: #134e9b;
+    border: 1px solid #c9ddff;
+}
+
+.notification-close {
+    all: unset;
+    cursor: pointer;
+    font-size: 18px;
+    color: inherit;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Ensure message wraps and close button is anchored to the right */
+.notification-message {
+    display: block;
+    max-width: 420px;
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* fade out helper */
+.notification-fade-out {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+@media (max-width: 768px) {
+    .bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}

@@ -42,3 +42,22 @@ CREATE TABLE IF NOT EXISTS income (
 		ON DELETE CASCADE,
 	INDEX idx_income_user_date (user_id, date)
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS savings_goals (
+	goal_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	user_id INT UNSIGNED NOT NULL,
+	goal_name VARCHAR(100) NOT NULL,
+	required_amount DECIMAL(12,2) NOT NULL,
+	current_savings DECIMAL(12,2) NOT NULL DEFAULT 0,
+	total_budget DECIMAL(12,2) NOT NULL,
+	start_date DATE NOT NULL,
+	due_date DATE NOT NULL,
+	is_achieved TINYINT(1) NOT NULL DEFAULT 0,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT fk_savings_goals_user
+		FOREIGN KEY (user_id)
+		REFERENCES users(user_id)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	INDEX idx_goals_user_date (user_id, due_date)
+) ENGINE=InnoDB;

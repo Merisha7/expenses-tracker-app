@@ -1,35 +1,80 @@
 <?php
-require_once './config/db.php';
+require_once __DIR__ . '/../config/db.php';
 session_start();
 
-// edit_income.php
+$currentUserId = $_SESSION['user_id'] ?? 0;
+if (!$currentUserId) {
+    header('Location: ../auth/login.php');
+    exit;
+}
 
-// --- STEP 1: Load existing income data (replace with real DB query) ---
-// Example real query: SELECT * FROM income WHERE id = $_GET['id']
-$income = [];
+$message = '';
+$income = [
+    'id' => '',
+    'amount' => '',
+    'source' => '',
+    'date' => '',
+    'description' => ''
+];
+$recordId = 0;
+$loadFromDb = true;
 
-// --- STEP 2: Handle form submission ---
-$message = "";
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $recordId = (int) ($_POST['id'] ?? 0);
+    $amount = trim($_POST['amount'] ?? '');
+    $source = trim($_POST['source'] ?? '');
+    $date = trim($_POST['date'] ?? '');
+    $description = trim($_POST['description'] ?? '');
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($recordId <= 0 || empty($amount) || empty($source) || empty($date)) {
+        $message = '<div class="message error">Please fill in Amount, Source, and Date.</div>';
+        $income = [
+            'id' => $recordId,
+            'amount' => $amount,
+            'source' => $source,
+            'date' => $date,
+            'description' => $description
+        ];
+        $loadFromDb = false;
+    } else {
+        // Check if the income exists for this user
+        $checkStmt = $pdo->prepare('SELECT 1 FROM income WHERE income_id = ? AND user_id = ?');
+        $checkStmt->execute([$recordId, $currentUserId]);
+        
+        if ($checkStmt->rowCount() === 0) {
+            $message = '<div class="message error">Income not found or permission denied.</div>';
+        } else {
+            // Record exists, update it
+            $stmt = $pdo->prepare('UPDATE income SET amount = ?, source = ?, date = ?, description = ? WHERE income_id = ? AND user_id = ?');
+            $stmt->execute([$amount, $source, $date, $description, $recordId, $currentUserId]);
+            $message = '<div class="message success">Income updated successfully!</div>';
+        }
+        
+        $loadFromDb = false;
+        $income = [
+            'id' => $recordId,
+            'amount' => $amount,
+            'source' => $source,
+            'date' => $date,
+            'description' => $description
+        ];
+    }
+} else {
+    $recordId = (int) ($_GET['id'] ?? 0);
+}
 
-  $amount      = trim($_POST["amount"]);
-  $source      = trim($_POST["source"]);
-  $date        = trim($_POST["date"]);
-  $description = trim($_POST["description"]);
+if ($recordId <= 0) {
+    die('Invalid income ID.');
+}
 
-  if (empty($amount) || empty($source) || empty($date)) {
-    $message = '<div class="message error">Please fill in Amount, Source, and Date.</div>';
-  } else {
-    // Real project: UPDATE income SET amount=?, source=?, date=?, description=? WHERE id=?
+if ($loadFromDb) {
+    $stmt = $pdo->prepare('SELECT income_id AS id, amount, source, date, COALESCE(description, "") AS description FROM income WHERE income_id = ? AND user_id = ?');
+    $stmt->execute([$recordId, $currentUserId]);
+    $income = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $message = '<div class="message success">Income updated successfully!</div>';
-
-    $income["amount"]      = $amount;
-    $income["source"]      = $source;
-    $income["date"]        = $date;
-    $income["description"] = $description;
-  }
+    if (!$income) {
+        die('Income not found.');
+    }
 }
 ?>
 
@@ -38,31 +83,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
   <meta charset="UTF-8" />
   <title>FinTrack - Edit Income</title>
-  <link rel="stylesheet" href="assets/css/edit_form.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="../assets/css/edit_form.css" />
 </head>
 <body>
 
   <!-- SIDEBAR -->
-  <div class="sidebar">
-
-    <div class="logo">
-      <div class="logo-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M7 4h8l4 4v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" />
-          <path d="M15 4v4h4" />
-          <path d="M9 11h6" />
-          <path d="M9 15h6" />
-        </svg>
-      </div>
-      <div class="logo-text">FinTrack</div>
+  <aside class="sidebar">
+    <div class="brand-box">
+        <span class="brand-icon" aria-hidden="true">
+            <svg class="brand-icon-svg" viewBox="0 0 24 24" fill="none">
+                <rect x="3.5" y="6.5" width="17" height="12" rx="1.8" stroke="currentColor" stroke-width="1.9"></rect>
+                <path d="M3.5 10.2H20.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path>
+            </svg>
+        </span>
+        <strong>FinTrack</strong>
     </div>
 
-    <a class="nav-link" href="dashboard.php">⊞ Dashboard</a>
-    <a class="nav-link" href="add_income.php">⊕ Add Income</a>
-    <a class="nav-link" href="add_expenses.php">⊖ Add Expenses</a>
-    <a class="logout" href="logout.php">↩ Log Out</a>
+    <nav class="menu">
+        <a class="menu-item active" href="dashboard.html"><i class="fas fa-tachometer-alt menu-icon"></i>Dashboard</a>
+        <a class="menu-item" href="../income/add_income.php"><i class="fas fa-plus-circle menu-icon"></i>Add Income</a>
+        <a class="menu-item" href="../expenses/add_expenses.php"><i class="fas fa-minus-circle menu-icon"></i>Add Expenses</a>
+        <a class="menu-item" href="../goals/set_goals.php"><i class="fas fa-bullseye menu-icon"></i>Set Goals</a>
+        <a class="menu-item" href="../goals/view_goals.php"><i class="fas fa-list-check menu-icon"></i>View Goals</a>
+        <a class="menu-item" href="../calendar/calendar.html"><i class="fas fa-calendar-alt menu-icon"></i>Calendar</a>
+    </nav>
 
-  </div>
+    <a class="logout-link" href="../auth/logout.php"><i class="fas fa-sign-out-alt logout-icon"></i>Log Out</a>
+  </aside>
 
   <!-- MAIN CONTENT -->
   <div class="main">
@@ -90,7 +138,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <textarea name="description"><?php echo $income['description']; ?></textarea>
 
         <div class="btn-row">
-          <a class="btn btn-cancel" href="dashboard.php">CANCEL</a>
+          <a class="btn btn-cancel" href="dashboard.html">CANCEL</a>
           <button class="btn btn-save-income" type="submit">SAVE EDIT</button>
         </div>
 

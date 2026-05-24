@@ -1,135 +1,17 @@
-<?php
-session_start();
-// Include database connection file
-include '../config/db.php';
-
-// /* Redirect if user is not logged in */
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/login.php");
-    exit();
-}
-
-/* Get logged in user's ID */
-$user_id = $_SESSION['user_id'];
-
-// For testing
-// $user_id = 1;
-
-// Variables to store message and message type (success/error)
-$message = "";
-$messageType = "";
-
- // Check if the form is submitted using POST method
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-   $amount = str_replace(',', '', $_POST['amount']);
-
-    // Get selected date
-    $date = $_POST['date'];
-
-    // Remove extra spaces from description
-    $description = trim($_POST['description']);
-
-    /* VALIDATE AMOUNT */
-
-    // Check if amount is NOT numeric
-    // Example: abc
-    if (!is_numeric($amount)) {
-
-        $message = "Amount must be an integer!";
-        $messageType = "error";
-
-    // Check if amount contains decimal value
-    // Example: 500.75
-    } elseif (floor((float)$amount) != $amount) {
-
-        $message = "Amount must be an integer!";
-        $messageType = "error";
-
-    // Check if amount is less than or equal to zero
-    // Example: -100 or 0
-    } elseif ($amount <= 0) {
-
-        $message = "Amount must be a positive number!";
-        $messageType = "error";
-
-    } else {
-
-        // Prepare SQL query to insert expense into database
-        try {
-
-            $stmt = $pdo->prepare(
-                "INSERT INTO expenses (user_id, amount, description, date)
-                 VALUES (?, ?, ?, ?)"
-            );
-
-            // Execute the query with parameters
-            if ($stmt->execute([
-                $user_id,
-                $amount,
-                $description,
-                $date
-            ])) {
-
-                // Success message
-                $message = "Expense added successfully!";
-                $messageType = "success";
-
-            } else {
-
-                // Error message if insert fails
-                $message = "Error adding expense!";
-                $messageType = "error";
-            }
-
-        } catch (PDOException $e) {
-
-            // Database error message
-            $message = "Database error: " . $e->getMessage();
-            $messageType = "error";
-        }
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Add Expense</title>
-
-    <!-- Makes the page responsive on mobile devices -->
+    <meta charset="UTF-8"> <!-- THIS FIXES IT -->
+    <title>Calendar</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Link to external CSS file -->
     <link rel="stylesheet" href="../assets/css/transactions.css">
+    <link rel="stylesheet" href="../assets/css/calendar.css">
 </head>
 <body>
 
 <div class="main">
-
-    <!-- POPUP MESSAGE SECTION -->
-    <?php if (!empty($message)): ?> <!-- Show popup only if message is not empty -->
-    <div class="popup">
-        <div class="popup-content <?php echo $messageType; ?>"> <!-- Add class based on success/error -->
-
-            <!-- Close button (reloads page) -->
-            <a href="add_expenses.php" class="close-btn">×</a>
-
-            <!-- Display message -->
-            <p><?php echo $message; ?></p>
-
-            <!-- If success, show button to go to dashboard -->
-            <?php if ($messageType == "success"): ?>
-            <a href="../dashboard/dashboard.html" class="popup-btn">
-                Go to Dashboard
-            </a>
-            <?php endif; ?>
-
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- Sidebar Navigation -->
+<!-- Sidebar Navigation -->
     <aside class="sidebar">
 
         <div class="brand-box">
@@ -170,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </a>
 
             <!-- Add Expenses -->
-            <a class="menu-item active" href="add_expenses.php">
+            <a class="menu-item" href="../expenses/add_expenses.php">
                 <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
                     <path d="M5 12h14"
                         stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -203,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </a>
 
             <!-- Calendar -->
-            <a class="menu-item" href="../calendar/calendar.html">
+            <a class="menu-item active" href="calendar.html">
                 <svg class="menu-icon" viewBox="0 0 24 24" fill="none">
                     <path d="M3.5 8.5h17M7.5 3.5v5M16.5 3.5v5M5 5.5h14A1.5 1.5 0 0 1 20.5 7v11A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18V7A1.5 1.5 0 0 1 5 5.5Z"
                         stroke="currentColor" stroke-width="1.8"
@@ -231,38 +113,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     </aside>
 
-    <!-- Main Content Area -->
     <div class="content">
-        <!-- Page heading -->
-        <h1>ADD EXPENSES</h1>
+        <h1>
+            <svg class="page-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-width="2" d="M3 8h18M8 3v5M16 3v5M3 8v13h18V8"/>
+            </svg>
+            CALENDAR
+        </h1> 
+        
+        <p class="subtitle">Track your income, expenses, and goals</p>
 
-        <!-- Subtitle -->
-        <p class="subtitle">Record a new expense entry</p>
-
-        <!-- Card container for form -->
+        <div id="detailsBox" class="details-box">
+            Select a date to view details
+        </div>
         <div class="card">
-            <!-- Form to submit expense -->
-            <form method="POST">
 
-                <!-- Input for amount -->
-                <label>Expense Amount:</label>
-                <input type="text" name="amount" required>
+            <div class="calendar-header">
+                <span id="prev">&#10094;</span>
+                <h2 id="monthYear"></h2>
+                <span id="next">&#10095;</span>
+            </div>
 
-                <!-- Input for date -->
-                <label>Date:</label>
-                <input type="date" name="date" required>
+            <div class="weekdays">
+                <div>Sun</div><div>Mon</div><div>Tue</div>
+                <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
 
-                <!-- Textarea for description -->
-                <label>Description:</label>
-                <textarea name="description"></textarea>
+            <div id="calendar"></div>
 
-                <!-- Submit button -->
-                <button class="btn-expense">ADD EXPENSE</button>
-            </form>
+            <div class="legend">
+                <span class="income">💰 Income Added</span>
+                <span class="expense">💸 Expenses Added</span>
+                <span class="goal">🎯 Goal Deadlines</span>
+            </div>
+
         </div>
     </div>
 
 </div>
 
+<div id="popup" class="popup-overlay">
+    <div class="popup-box">
+
+        <span class="close-btn" onclick="closePopup()">×</span>
+
+        <div id="popupContent">
+            <!-- dynamic content comes here -->
+        </div>
+
+    </div>
+</div>
+
+<script src="../assets/js/calendar.js"></script>
 </body>
 </html>

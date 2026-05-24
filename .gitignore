@@ -1,0 +1,26 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Dependency folders
+node_modules/
+vendor/
+
+# PHP / app runtime artifacts
+*.cache
+*.tmp
+*.bak
+*.sql.gz
